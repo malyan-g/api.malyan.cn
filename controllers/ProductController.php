@@ -22,6 +22,7 @@ class ProductController extends Controller
         $requestData = Yii::$app->request->get();
         $page = (int) ArrayHelper::getValue($requestData, 'page', 1);
         if($page > 0){
+            $this->data['code'] = self::API_CODE_SUCCESS;
             $this->data['data'] = [
                 [
                     'title' => 'LANCOME兰蔻小黑瓶精华肌底液',
@@ -58,6 +59,7 @@ class ProductController extends Controller
      */
     public function actionDetail()
     {
+        $this->data['code'] = self::API_CODE_SUCCESS;
         $this->data['data'] = [
             'title' => 'LANCOME兰蔻小黑瓶精华肌底液',
             'detail' => '东西还可以，好评~,东西还可以，好评~东西还可以，好评~东西还可以，好评~东西还可以，好评~东西还可以，好评~东西还可以，好评~东西还可以，好评~',
