@@ -85,7 +85,7 @@ class ApiRequest
      */
     public static function login($code)
     {
-        $url = 'https://api.weixin.qq.com/sns/jscode2session?appid=' .self::API_APP_ID . '&secret=' . self::API_APP_SECRET . '&js_code=' . $code . 'grant_type&=authorization_code';
+        $url = 'https://api.weixin.qq.com/sns/jscode2session?appid=' .self::API_APP_ID . '&secret=' . self::API_APP_SECRET . '&js_code=' . $code . '&grant_type=authorization_code';
         $result = HttpClientHelper::request($url, 'get');
         return ArrayHelper::getValue($result, 'errcode') == 0 ? $result : [];
     }
