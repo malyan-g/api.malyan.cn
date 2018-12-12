@@ -35,38 +35,38 @@ class OrderController extends Controller
                 [
                     'title' => 'LANCOME兰蔻小黑瓶精华肌底液',
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057921620_middle.jpg',
-                    'totalNum' => 4
+                    'totalNum' => 8,
+                    'totalAmount' => 188 * 8
                 ],
                 [
                     'title' => 'LANCOME兰蔻小黑瓶精华肌底液-1',
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057922659_middle.jpg',
                     'totalNum' => 4,
                     'totalAmount' => 188 * 4
-
                 ],
                 [
                     'title' => 'LANCOME兰蔻小黑瓶精华肌底液-2',
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057923813_middle.jpg',
                     'totalNum' => 20,
-                    'totalAmount' => 188 * 4
+                    'totalAmount' => 188 * 20
                 ],
                 [
                     'title' => 'LANCOME兰蔻小黑瓶精华肌底液-3',
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057924965_middle.jpg',
                     'totalNum' => 2,
-                    'totalAmount' => 188 * 4
+                    'totalAmount' => 188 * 2
                 ],
                 [
                     'title' => 'LANCOME兰蔻小黑瓶精华肌底液-4',
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057925958_middle.jpg',
                     'totalNum' => 10,
-                    'totalAmount' => 188 * 4
+                    'totalAmount' => 188 * 10
                 ],
                 [
                     'title' => 'LANCOME兰蔻小黑瓶精华肌底液-5',
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057923813_middle.jpg',
                     'totalNum' => 1,
-                    'totalAmount' => 188 * 4
+                    'totalAmount' => 188
                 ]
             ];
              }else{
