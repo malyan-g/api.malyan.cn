@@ -11,6 +11,11 @@ namespace app\controllers;
 use YII;
 use yii\helpers\ArrayHelper;
 
+/**
+ * 产品接口
+ * Class ProductController
+ * @package app\controllers
+ */
 class ProductController extends Controller
 {
     /**
