@@ -23,7 +23,7 @@ class ProductController extends Controller
         $page = (int) ArrayHelper::getValue($requestData, 'page', 1);
         if($page > 0){
             $this->data['code'] = self::API_CODE_SUCCESS;
-            $this->data['allPages'] = 4;
+            $this->data['allPages'] = 3;
             $this->data['data'] = [
                 [
                     'title' => 'LANCOME兰蔻小黑瓶精华肌底液',
