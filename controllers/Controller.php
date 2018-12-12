@@ -11,7 +11,6 @@ namespace app\controllers;
 use Yii;
 use yii\web\Response;
 use yii\helpers\ArrayHelper;
-use app\components\base\ApiErrorAction;
 
 class Controller extends \yii\web\Controller
 {
@@ -42,15 +41,18 @@ class Controller extends \yii\web\Controller
 
         $route = $this->module->requestedRoute;
         if(!in_array($route, $this->permissions)){
+
             $data = ArrayHelper::merge(Yii::$app->request->get(), Yii::$app->request->post());
             $sign = ArrayHelper::getValue($data, 'sign', null);
             $userInfo = Yii::$app->cache->get($sign);
+
             if($userInfo){
                 $this->userInfo = $userInfo;
                 Yii::$app->cache->set($sign, $userInfo, 1800);
             }else{
                 $this->data['msg'] = '非法请求';
-                return $this->data;
+                Yii::$app->response->data = $this->data;
+                return false;
             }
         }
 
