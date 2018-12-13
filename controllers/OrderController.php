@@ -105,4 +105,28 @@ class OrderController extends Controller
         ];
         return $this->data;
     }
+
+    /**
+     * 确认收货
+     * @return mixed
+     */
+    public function actionConfirmReceipt()
+    {
+        $requestData = Yii::$app->request->get();
+        $orderId = (int) ArrayHelper::getValue($requestData, 'orderId', 1);
+        $this->data['code'] = self::API_CODE_SUCCESS;
+        return $this->data;
+    }
+
+    /**
+     * 支付
+     * @return mixed
+     */
+    public function actionPayment()
+    {
+        $requestData = Yii::$app->request->get();
+        $orderId = (int) ArrayHelper::getValue($requestData, 'orderId', 1);
+        $this->data['code'] = self::API_CODE_SUCCESS;
+        return $this->data;
+    }
 }
