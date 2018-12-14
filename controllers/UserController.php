@@ -8,23 +8,37 @@
 
 namespace app\controllers;
 
-use app\components\methods\Sign;
 use YII;
-use app\components\methods\ApiRequest;
+use app\models\User;
+use app\components\helpers\ScHelper;
+use app\components\helpers\WxApiHelper;
 
+/**
+ * Class UserController
+ * @package app\controllers
+ */
 class UserController extends Controller
 {
+
     public function actionLogin()
     {
         $code = Yii::$app->request->get('code');
         if(!is_null($code)){
-            $data = ApiRequest::login($code);
-            if($data){
-                $this->data['msg'] = self::API_CODE_SUCCESS_MSG;
-                $this->data['sign'] =  md5($data['openid'] . rand(10000,99999) . $data['session_key']);
-                Yii::$app->cache->set($this->data['sign'], $data, 1800);
-            }else{
-                $this->data['msg'] = '服务器异常';
+            $this->data['msg'] = '服务器异常';
+            // 请求微信登录获取openid
+            $loginInfo = WxApiHelper::getLoginInfo($code);
+            if($loginInfo){
+                // 根据openid获取用户信息
+                $user = User::getUserInfo($loginInfo['openid']);
+                if($user){
+                    $this->data['code'] = self::API_CODE_SUCCESS;
+                    $this->data['msg'] = self::API_CODE_SUCCESS_MSG;
+                    $this->data['sign'] =  ScHelper::encode([
+                        'id' => $user->id,
+                        'loginTime' => time()
+                    ]);
+                    Yii::$app->cache->set(self::CACHE_USER_LOGIN_KEY . $user->id, $loginInfo, 1800);
+                }
             }
         }else{
             $this->data['msg'] = '非法请求';

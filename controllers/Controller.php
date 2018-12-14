@@ -8,6 +8,7 @@
 
 namespace app\controllers;
 
+use app\components\helpers\ScHelper;
 use Yii;
 use yii\web\Response;
 use yii\helpers\ArrayHelper;
@@ -19,6 +20,7 @@ class Controller extends \yii\web\Controller
     const API_CODE_SUCCESS_MSG = '请求成功';
     const API_CODE_FAILURE_MSG = '请求失败';
     const API_SIGN_KEY = 'abc123';
+    const CACHE_USER_LOGIN_KEY = 'user.login.';
 
     public $data;
     public $userInfo;
@@ -41,14 +43,20 @@ class Controller extends \yii\web\Controller
 
         $route = $this->module->requestedRoute;
         if(!in_array($route, $this->permissions)){
-
             $data = ArrayHelper::merge(Yii::$app->request->get(), Yii::$app->request->post());
             $sign = ArrayHelper::getValue($data, 'sign', null);
-            $userInfo = Yii::$app->cache->get($sign);
-
-            if($userInfo){
-                $this->userInfo = $userInfo;
-                Yii::$app->cache->set($sign, $userInfo, 1800);
+            $signData = ScHelper::decode($sign);
+            if($signData){
+                $id = ArrayHelper::getValue($signData, 'id', 0);
+                $userInfo = Yii::$app->cache->get(self::CACHE_USER_LOGIN_KEY . $id);
+                if($userInfo){
+                    $this->userInfo = $userInfo;
+                    Yii::$app->cache->set($sign, $userInfo, 1800);
+                }else{
+                    $this->data['msg'] = '请求超时';
+                    Yii::$app->response->data = $this->data;
+                    return false;
+                }
             }else{
                 $this->data['msg'] = '非法请求';
                 Yii::$app->response->data = $this->data;

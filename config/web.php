@@ -15,11 +15,6 @@ $config = [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
-        'user' => [
-            'identityClass' => 'app\models\User',
-            'identityCookie' => ['name' => '_identity-passport', 'httpOnly' => true],
-            'enableAutoLogin' => true,
-        ],
         // 错误配置
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -40,13 +35,14 @@ $config = [
         'redis' => require(__DIR__ . '/redis.php'),
         // 路由配置
         'urlManager' => require(__DIR__ . '/urlManager.php')
-    ],
-    'params' => require(__DIR__ . '/params.php'),
-    'aliases' => [
-        '@staticHost' => 'http://static.malyan.cn',
-    ],
+    ]
 ];
-
+$config['bootstrap'][] = 'gii';
+$config['modules']['gii'] = [
+    'class' => 'yii\gii\Module',
+    // uncomment the following to add your IP if you are not connecting from localhost.
+    //'allowedIPs' => ['127.0.0.1', '::1'],
+];
 if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
