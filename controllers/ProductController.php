@@ -39,7 +39,7 @@ class ProductController extends Controller
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057922659_middle.jpg'
                 ],
                 [
-                    'title' => 'LANCOME兰蔻小黑瓶精华肌底液-2',
+                    'title' => 'LANCOME兰蔻小黑小黑瓶精华小黑瓶精华瓶精华肌底液-2',
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057923813_middle.jpg'
                 ],
                 [
@@ -47,7 +47,7 @@ class ProductController extends Controller
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057924965_middle.jpg'
                 ],
                 [
-                    'title' => 'LANCOME兰蔻小黑瓶精华肌底液-4',
+                    'title' => 'LANCOME兰蔻小小黑瓶精华黑瓶精华肌底液-4',
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057925958_middle.jpg'
                 ],
                 [
