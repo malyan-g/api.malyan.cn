@@ -39,21 +39,21 @@ class OrderController extends Controller
                     'status' => $status == 0 ? rand(1,5) : $status
                 ],
                 [
-                    'title' => 'LANCOME兰蔻小黑瓶精华肌底液-1',
+                    'title' => 'LANCOME兰蔻小黑瓶精小黑瓶精小黑瓶精华肌底液-1',
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057922659_middle.jpg',
                     'totalNum' => 4,
                     'totalAmount' => 188 * 4,
                     'status' => $status == 0 ? rand(1,5) : $status
                 ],
                 [
-                    'title' => 'LANCOME兰蔻小黑瓶精华肌底液-2',
+                    'title' => 'LANCOME兰蔻小黑瓶精小黑瓶精华肌底液-2',
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057923813_middle.jpg',
                     'totalNum' => 20,
                     'totalAmount' => 188 * 20,
                     'status' => $status == 0 ? rand(1,5) : $status
                 ],
                 [
-                    'title' => 'LANCOME兰蔻小黑瓶精华肌底液-3',
+                    'title' => 'LANCOME兰蔻小黑瓶精小黑瓶精小黑瓶精小黑瓶精小黑瓶精小黑瓶精华肌底液-3',
                     'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057924965_middle.jpg',
                     'totalNum' => 2,
                     'totalAmount' => 188 * 2,
