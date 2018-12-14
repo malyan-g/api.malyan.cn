@@ -14,12 +14,17 @@ use app\components\helpers\ScHelper;
 use app\components\helpers\WxApiHelper;
 
 /**
+ * 用户接口
  * Class UserController
  * @package app\controllers
  */
 class UserController extends Controller
 {
 
+    /**
+     * 登录接口
+     * @return mixed
+     */
     public function actionLogin()
     {
         $code = Yii::$app->request->get('code');
@@ -31,12 +36,15 @@ class UserController extends Controller
                 // 根据openid获取用户信息
                 $user = User::getUserInfo($loginInfo['openid']);
                 if($user){
-                    $this->data['code'] = self::API_CODE_SUCCESS;
-                    $this->data['msg'] = self::API_CODE_SUCCESS_MSG;
-                    $this->data['sign'] =  ScHelper::encode([
-                        'id' => $user->id,
-                        'loginTime' => time()
-                    ]);
+                    $this->data = [
+                        'code' => self::API_CODE_SUCCESS,
+                        'msg' => self::API_CODE_SUCCESS_MSG,
+                        'sign' => ScHelper::encode([
+                            'id' => $user->id,
+                            'loginTime' => time()
+                        ])
+                    ];
+                    // 记录用户登录状态
                     Yii::$app->cache->set(self::CACHE_USER_LOGIN_KEY . $user->id, $loginInfo, 1800);
                 }
             }
