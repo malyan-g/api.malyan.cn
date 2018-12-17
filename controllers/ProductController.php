@@ -156,4 +156,30 @@ class ProductController extends Controller
         ];
         return $this->data;
     }
+
+    /**
+     * 购物车产品详情
+     * @return mixed
+     */
+    public function actionCartDetail()
+    {
+        $requestData = Yii::$app->request->get();
+        $productData = (int) ArrayHelper::getValue($requestData, 'productData');
+        $cartArray = json_decode($productData, true);
+        if($cartArray){
+            foreach ($cartArray as $key => $val) {
+                $this->data['code'] = self::API_CODE_SUCCESS;
+                $this->data['data'][] = [
+                    'id' => $key,
+                    'title' => 'LANCOME兰蔻小小黑瓶精华黑瓶精华肌底液',
+                    'price' => '168.00',
+                    'count' => $val,
+                    'memberName' => '银卡专享',
+                    'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057924965_middle.jpg'
+                ];
+            }
+        }
+
+        return $this->data;
+    }
 }
