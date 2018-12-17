@@ -164,7 +164,7 @@ class ProductController extends Controller
     public function actionCartDetail()
     {
         $requestData = Yii::$app->request->get();
-        $productData = (int) ArrayHelper::getValue($requestData, 'productData');
+        $productData = ArrayHelper::getValue($requestData, 'productData');
         $cartArray = json_decode($productData, true);
         if($cartArray){
             $this->data['code'] = self::API_CODE_SUCCESS;
