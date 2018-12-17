@@ -168,7 +168,7 @@ class ProductController extends Controller
         if($productData){
             $this->data['code'] = self::API_CODE_SUCCESS;
             foreach ($productData as $val) {
-                $this->data['data'][] = [
+                $this->data['data'][$val] = [
                     'id' => $val,
                     'title' => 'LANCOME兰蔻小小黑瓶精华黑瓶精华肌底液',
                     'price' => '168.00',
