@@ -167,8 +167,8 @@ class ProductController extends Controller
         $productData = (int) ArrayHelper::getValue($requestData, 'productData');
         $cartArray = json_decode($productData, true);
         if($cartArray){
+            $this->data['code'] = self::API_CODE_SUCCESS;
             foreach ($cartArray as $key => $val) {
-                $this->data['code'] = self::API_CODE_SUCCESS;
                 $this->data['data'][] = [
                     'id' => $key,
                     'title' => 'LANCOME兰蔻小小黑瓶精华黑瓶精华肌底液',
