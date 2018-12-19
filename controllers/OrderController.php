@@ -107,6 +107,23 @@ class OrderController extends Controller
     }
 
     /**
+     * 新增订单
+     * @return mixed
+     */
+    public function actionAdd()
+    {
+        $requestData = Yii::$app->request->post();
+        $orderData = json_decode(ArrayHelper::getValue($requestData, 'orderData'));
+        $addressData = json_decode(ArrayHelper::getValue($requestData, 'addressData'));
+        $this->data['code'] = self::API_CODE_SUCCESS;
+        $this->data['data'] =[
+            $orderData,
+            $addressData
+        ];
+        return $this->data;
+    }
+
+    /**
      * 确认收货
      * @return mixed
      */
