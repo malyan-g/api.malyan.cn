@@ -5,13 +5,15 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "{{%user}}".
+ * This is the model class for table "cgt_user".
  *
  * @property integer $id
  * @property string $realname
  * @property integer $mobile
  * @property string $idcard
  * @property string $openid
+ * @property integer $member_id
+ * @property integer $member_time
  * @property integer $created_at
  */
 class User extends \yii\db\ActiveRecord
@@ -21,7 +23,7 @@ class User extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return '{{%user}}';
+        return 'cgt_user';
     }
 
     /**
@@ -30,7 +32,7 @@ class User extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['mobile', 'created_at'], 'integer'],
+            [['mobile', 'member_id', 'member_time', 'created_at'], 'integer'],
             [['realname', 'idcard'], 'string', 'max' => 20],
             [['openid'], 'string', 'max' => 30],
         ];
@@ -47,9 +49,12 @@ class User extends \yii\db\ActiveRecord
             'mobile' => '手机号',
             'idcard' => '身份证',
             'openid' => '微信ID',
+            'member_id' => '会员等级',
+            'member_time' => '会员开通时间',
             'created_at' => '创建时间',
         ];
     }
+
     /**
      * 获取用户
      * @param $openid
