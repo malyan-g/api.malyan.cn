@@ -24,7 +24,7 @@ class ProductController extends Controller
      */
     public function actionList()
     {
-        $requestData = Yii::$app->request->get();
+        $requestData = Yii::$app->request->post();
         $page = (int) ArrayHelper::getValue($requestData, 'page', 1);
         if($page > 0){
             $this->data['code'] = self::API_CODE_SUCCESS;
@@ -119,7 +119,7 @@ class ProductController extends Controller
      */
     public function actionDetail()
     {
-        $requestData = Yii::$app->request->get();
+        $requestData = Yii::$app->request->post();
         $id= (int) ArrayHelper::getValue($requestData, 'id', 1);
         $this->data['code'] = self::API_CODE_SUCCESS;
         $this->data['data'] = [
@@ -163,7 +163,7 @@ class ProductController extends Controller
      */
     public function actionCartDetail()
     {
-        $requestData = Yii::$app->request->get();
+        $requestData = Yii::$app->request->post();
         $productData = json_decode(ArrayHelper::getValue($requestData, 'productData'), true);
         if($productData){
             $this->data['code'] = self::API_CODE_SUCCESS;

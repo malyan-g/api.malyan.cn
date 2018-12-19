@@ -24,7 +24,7 @@ class OrderController extends Controller
      */
     public function actionList()
     {
-        $requestData = Yii::$app->request->get();
+        $requestData = Yii::$app->request->post();
         $page = (int) ArrayHelper::getValue($requestData, 'page', 1);
         $status= (int) ArrayHelper::getValue($requestData, 'status', 0);
         if($page > 0) {
@@ -112,7 +112,7 @@ class OrderController extends Controller
      */
     public function actionConfirmReceipt()
     {
-        $requestData = Yii::$app->request->get();
+        $requestData = Yii::$app->request->post();
         $orderId = (int) ArrayHelper::getValue($requestData, 'orderId', 1);
         $this->data['code'] = self::API_CODE_SUCCESS;
         return $this->data;
@@ -124,7 +124,7 @@ class OrderController extends Controller
      */
     public function actionPayment()
     {
-        $requestData = Yii::$app->request->get();
+        $requestData = Yii::$app->request->post();
         $orderId = (int) ArrayHelper::getValue($requestData, 'orderId', 1);
         $this->data['code'] = self::API_CODE_SUCCESS;
         return $this->data;
