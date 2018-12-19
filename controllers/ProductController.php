@@ -164,10 +164,11 @@ class ProductController extends Controller
     public function actionCartDetail()
     {
         $requestData = Yii::$app->request->post();
-        $productData = json_decode(ArrayHelper::getValue($requestData, 'productData'), true);
+        $productData = ArrayHelper::getValue($requestData, 'productData');
         if($productData){
+            $productArray =  explode(',', $productData);
             $this->data['code'] = self::API_CODE_SUCCESS;
-            foreach ($productData as $val) {
+            foreach ($productArray as $val) {
                 $this->data['data'][$val] = [
                     'id' => $val,
                     'title' => 'LANCOME兰蔻小小黑瓶精华黑瓶精华肌底液',
