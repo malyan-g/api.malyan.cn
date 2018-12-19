@@ -22,6 +22,7 @@ class Controller extends \yii\web\Controller
     const API_SIGN_KEY = 'abc123';
     const CACHE_USER_LOGIN_KEY = 'user.login.';
 
+    public $enableCsrfValidation = false;
     public $data;
     public $userInfo;
     public $permissions = [
