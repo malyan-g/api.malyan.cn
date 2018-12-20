@@ -32,6 +32,7 @@ class UserController extends Controller
             $this->data['msg'] = '服务器异常';
             // 请求微信登录获取openid
             $loginInfo = WxApiHelper::getLoginInfo($code);
+
             if($loginInfo){
                 // 根据openid获取用户信息
                 $user = User::getUserInfo($loginInfo['openid']);
@@ -40,12 +41,13 @@ class UserController extends Controller
                         'code' => self::API_CODE_SUCCESS,
                         'msg' => self::API_CODE_SUCCESS_MSG,
                         'sign' => ScHelper::encode([
-                            'id' => $user->id,
+                            'id' => $user['id'],
                             'loginTime' => time()
                         ])
                     ];
+                    $user['session_key'] = $loginInfo['session_key'];
                     // 记录用户登录状态
-                    Yii::$app->cache->set(self::CACHE_USER_LOGIN_KEY . $user->id, $loginInfo, 1800);
+                    Yii::$app->cache->set(self::CACHE_USER_LOGIN_KEY . $user['id'], $user, 1800);
                 }
             }
         }else{

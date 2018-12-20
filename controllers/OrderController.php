@@ -9,7 +9,14 @@
 namespace app\controllers;
 
 use YII;
+use app\models\Order;
+use app\models\Product;
+use yii\db\ActiveQuery;
 use yii\helpers\ArrayHelper;
+use app\models\OrderAttach;
+use app\models\ProductPrice;
+use app\models\OrderAddress;
+use yii\data\ActiveDataProvider;
 
 /**
  * 订单接口
@@ -26,54 +33,67 @@ class OrderController extends Controller
     {
         $requestData = Yii::$app->request->post();
         $page = (int) ArrayHelper::getValue($requestData, 'page', 1);
-        $status= (int) ArrayHelper::getValue($requestData, 'status', 0);
+        $status = (int) ArrayHelper::getValue($requestData, 'status', 0);
         if($page > 0) {
             $this->data['code'] = self::API_CODE_SUCCESS;
-            $this->data['allPages'] = 3;
-            $this->data['data'] = [
-                [
-                    'title' => 'LANCOME兰蔻小黑瓶精华肌底液',
-                    'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057921620_middle.jpg',
-                    'totalNum' => 8,
-                    'totalAmount' => 188 * 8,
-                    'status' => $status == 0 ? rand(1,5) : $status
-                ],
-                [
-                    'title' => 'LANCOME兰蔻小黑瓶精小黑瓶精小黑瓶精华肌底液-1',
-                    'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057922659_middle.jpg',
-                    'totalNum' => 4,
-                    'totalAmount' => 188 * 4,
-                    'status' => $status == 0 ? rand(1,5) : $status
-                ],
-                [
-                    'title' => 'LANCOME兰蔻小黑瓶精小黑瓶精华肌底液-2',
-                    'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057923813_middle.jpg',
-                    'totalNum' => 20,
-                    'totalAmount' => 188 * 20,
-                    'status' => $status == 0 ? rand(1,5) : $status
-                ],
-                [
-                    'title' => 'LANCOME兰蔻小黑瓶精小黑瓶精小黑瓶精小黑瓶精小黑瓶精小黑瓶精华肌底液-3',
-                    'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057924965_middle.jpg',
-                    'totalNum' => 2,
-                    'totalAmount' => 188 * 2,
-                    'status' => $status == 0 ? rand(1,5) : $status
-                ],
-                [
-                    'title' => 'LANCOME兰蔻小黑瓶精华肌底液-4',
-                    'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057925958_middle.jpg',
-                    'totalNum' => 10,
-                    'totalAmount' => 188 * 10,
-                    'status' => $status == 0 ? rand(1,5) : $status
-                ],
-                [
-                    'title' => 'LANCOME兰蔻小黑瓶精华肌底液-5',
-                    'imgUrl' => 'http://mz.djmall.xmisp.cn/files/product/20161201/148057923813_middle.jpg',
-                    'totalNum' => 1,
-                    'totalAmount' => 188,
-                    'status' => $status == 0 ? rand(1,5) : $status
-                ]
+            $query = Order::find()
+                ->select(['id', 'order_number', 'total_amount', 'total_number', 'status'])
+                ->where(['user_id' => $this->userInfo['id']]);
+
+            // 订单状态
+            if($status){
+                $query->andWhere(['status' => $status]);
+            }
+
+            $allPages = (int) ceil($query->count()/6);
+            $data = [
+                'code' => self::API_CODE_SUCCESS,
+                'msg' => self::API_CODE_SUCCESS_MSG,
+                'allPages' => $allPages,
             ];
+
+            if($page <= $allPages){
+                $pageSize = 6;
+                $order = $query->orderBy(['created_at' => SORT_DESC])
+                    ->offset(($page-1) * $pageSize)
+                    ->limit($pageSize)
+                    ->asArray()
+                    ->all();
+
+                $orderArray = array_column($order, 'id');
+                $orderAttach = OrderAttach::find()
+                    ->select(['order_id', 'product_id'])
+                    ->innerJoinWith('product')
+                    ->where(['order_id' =>$orderArray])
+                    ->asArray()
+                    ->all();
+
+                $attachData = [];
+                foreach ($orderAttach as $val){
+                    $attachData[$val['order_id']][] = $val;
+                }
+
+                foreach($order as $key => $val) {
+                    $data['data'][$key] = [
+                        'id' => $val['id'],
+                        'orderNumber' => $val['order_number'],
+                        'totalAmount' => $val['total_amount'],
+                        'totalNumber' => $val['total_number'],
+                        'status' => $val['status'],
+                        'isMoreProduct' => count($attachData[$val['id']])
+                    ];
+
+                    if ($data['data'][$key]['isMoreProduct'] > 1) {
+                        foreach ($attachData[$val['id']] as $v) {
+                            $data['data'][$key]['images'][] =$v['product']['image'];
+                        }
+                    } else {
+                        $data['data'][$key]['title'] = $attachData[$val['id']][0]['product']['name'];
+                        $data['data'][$key]['image'] = $attachData[$val['id']][0]['product']['image'];
+                    }
+                }
+            }
+            $this->data = $data;
         }
         return $this->data;
     }
@@ -113,13 +133,84 @@ class OrderController extends Controller
     public function actionAdd()
     {
         $requestData = Yii::$app->request->post();
-        $orderData = json_decode(ArrayHelper::getValue($requestData, 'orderData'));
-        $addressData = json_decode(ArrayHelper::getValue($requestData, 'addressData'));
-        $this->data['code'] = self::API_CODE_SUCCESS;
-        $this->data['data'] =[
-            $orderData,
-            $addressData
-        ];
+        $orderData = json_decode(ArrayHelper::getValue($requestData, 'orderData'), true);
+        $addressData = json_decode(ArrayHelper::getValue($requestData, 'addressData'), true);
+
+        // 判断数据的合法性
+        if(is_array($orderData) && $orderData && is_array($addressData) && $addressData){
+            // 获取产品ID数据
+            $productArray =  array_keys($orderData);
+            $query = Product::find();
+            // 会员查会员价格
+            $isMember = $this->userInfo['is_member'] ? true : false;
+            if($isMember){
+                $memberId = $this->userInfo['member_id'];
+                $query = $query
+                    ->select([Product::tableName() . '.id',  'price', 'member_price'])
+                    ->leftJoin(ProductPrice::tableName(), ProductPrice::tableName() . '.product_id=' . Product::tableName() . '.id and ' . ProductPrice::tableName() . '.member_id=' . $memberId);
+            }else{
+                $query = $query->select(['id', 'price']);
+            }
+            $productData = $query
+                ->where([Product::tableName() . '.id' => $productArray, 'status' => Product::NORMAL_STATUS])
+                ->asArray()
+                ->all();
+
+            if(count($productArray) === count($productData)){
+                $order = new Order();
+                $orderAddress= new OrderAddress();
+                $order->user_id = $this->userInfo['id'];
+                if($order->validate() && $orderAddress->load(['data' => $addressData], 'data') && $orderAddress->validate()){
+                    $orderAttach = new OrderAttach();
+                    $trans = Yii::$app->db->beginTransaction();
+                    try {
+                        $order->save();
+                        $orderAddress->order_id = $order->id;
+                        $orderAddress->save();
+                        // 购买产品处理
+                        foreach ($productData as $val){
+                            $_orderAttach = clone  $orderAttach;
+                            $_orderAttach->order_id = $order->id;
+                            $_orderAttach->product_id = $val['id'];
+                            $_orderAttach->buy_number = $orderData[$val['id']]['count'];
+                            // 是否是会员价格
+                            if($isMember){
+                                $_orderAttach->buy_price = $val['member_price'] ? $val['member_price'] : $val['price'];
+                            }else{
+                                $_orderAttach->buy_price = $val['price'];
+                            }
+                            // 验证失败直接数据回滚
+                            if($_orderAttach->validate()){
+                                $_orderAttach->save();
+                            }else{
+                                $trans->rollBack();
+                                return $this->data;
+                            }
+
+                            // 计算购买总价和购买总数量
+                            $order->total_number += $_orderAttach->buy_number;
+                            $order->total_amount += $_orderAttach->buy_price * $_orderAttach->buy_number;
+                        }
+
+                        $order->save();
+                        $trans->commit();
+                        $this->data = [
+                            'code' => self::API_CODE_SUCCESS,
+                            'msg' => self::API_CODE_SUCCESS_MSG,
+                            'data' => [
+                                'id' => $order->id,
+                                'timeStamp' => '',
+                                'nonceStr' => '',
+                                'package' => '',
+                                'paySign' => ''
+                            ]
+                        ];
+                    } catch (\Exception $e) {
+                        $trans->rollBack();
+                    }
+                }
+            }
+        }
         return $this->data;
     }
 

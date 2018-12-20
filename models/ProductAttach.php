@@ -27,7 +27,7 @@ class ProductAttach extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['banner', 'describe'], 'string', 'max' => 500],
+            [['banner', 'describe'], 'string'],
         ];
     }
 

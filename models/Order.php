@@ -8,6 +8,7 @@ use Yii;
  * This is the model class for table "cgt_order".
  *
  * @property integer $id
+ * @property integer $user_id
  * @property string $order_number
  * @property string $total_amount
  * @property integer $total_number
@@ -20,6 +21,14 @@ use Yii;
  */
 class Order extends \yii\db\ActiveRecord
 {
+    const ORDER_STATUS_NOT_PAY = 1; // 未支付
+    const ORDER_STATUS_STAY_SEND_GOODS = 2; // 待发货
+    const ORDER_STATUS_STAY_RECEIVE_GOODS = 3; // 待收货
+    const ORDER_STATUS_HAS_COMPLETE = 4; // 已完成
+    const ORDER_STATUS_HAS_CANCEL = 5; // 已取消
+    const ORDER_STATUS_HAS_REFUND = 6; // 已退款
+    const ORDER_STATUS_STAY_REFUND = 7; // 待退款
+
     /**
      * @inheritdoc
      */
@@ -34,9 +43,10 @@ class Order extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['user_id'], 'required'],
             [['total_amount'], 'number'],
-            [['total_number', 'status', 'payment_time', 'delivery_time', 'complete_time', 'created_at'], 'integer'],
-            [['order_number', 'serial_number'], 'string', 'max' => 20],
+            [['user_id', 'total_number', 'status', 'payment_time', 'delivery_time', 'complete_time', 'created_at'], 'integer'],
+            [['order_number', 'serial_number'], 'string', 'max' => 30],
         ];
     }
 
@@ -47,6 +57,7 @@ class Order extends \yii\db\ActiveRecord
     {
         return [
             'id' => '订单ID',
+            'user_id' => '用户ID',
             'order_number' => '订单号',
             'total_amount' => '总金额',
             'total_number' => '总数量',
@@ -57,5 +68,41 @@ class Order extends \yii\db\ActiveRecord
             'complete_time' => '完成时间',
             'created_at' => '创建时间',
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        if($this->isNewRecord){
+            $this->order_number = $this->getOrderNumber();
+            $this->status = self::ORDER_STATUS_NOT_PAY;
+            $this->created_at = time();
+        }
+        return parent::behaviors();
+    }
+
+    /**
+     * 订单和产品的关联
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAttach()
+    {
+        return $this->hasMany(OrderAttach::className(), ['order_id' => 'id'])->select(['order_id', 'product_id']);
+    }
+
+    /**
+     * 生成订单号
+     * @return string
+     */
+    public function getOrderNumber()
+    {
+        $orderNumber = 'DDH' . time() . rand(10000,99999);
+        $result = self::findOne(['order_number' =>$orderNumber]);
+        if($result){
+            return $this->getOrderNumber();
+        }
+        return $orderNumber;
     }
 }

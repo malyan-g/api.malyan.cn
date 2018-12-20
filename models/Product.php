@@ -17,6 +17,15 @@ use Yii;
 class Product extends \yii\db\ActiveRecord
 {
     /**
+     * 上架状态
+     */
+    const NORMAL_STATUS = 1;
+    /**
+     * 下架状态
+     */
+    const BAN_STATUS = 2;
+
+    /**
      * @inheritdoc
      */
     public static function tableName()

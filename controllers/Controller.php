@@ -40,7 +40,7 @@ class Controller extends \yii\web\Controller
         Yii::$app->response->format = Response::FORMAT_JSON;
         $this->data = [
             'code' => self::API_CODE_FAILURE,
-            'msg' => self::API_CODE_SUCCESS_MSG
+            'msg' => self::API_CODE_FAILURE_MSG
         ];
 
         $route = $this->module->requestedRoute;
@@ -54,7 +54,7 @@ class Controller extends \yii\web\Controller
                 $userInfo = Yii::$app->cache->get($cacheUserLoginKey);
                 if($userInfo){
                     $this->userInfo = $userInfo;
-                    Yii::$app->cache->set($cacheUserLoginKey, 1800);
+                    Yii::$app->cache->set($cacheUserLoginKey, $userInfo,1800);
                 }else{
                     $this->data['msg'] = '请求超时';
                     Yii::$app->response->data = $this->data;
