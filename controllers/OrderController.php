@@ -86,7 +86,7 @@ class OrderController extends Controller
                     if ($data['data'][$key]['isMoreProduct'] > 1) {
                         $_productData = [];
                         foreach ($attachData[$val['id']] as $v) {
-                            $_productData = $v['product_id'];
+                            $_productData[] = $v['product_id'];
                             $data['data'][$key]['images'][] =$v['product']['image'];
                         }
                         $data['data'][$key]['productData'] = json_encode($_productData);
