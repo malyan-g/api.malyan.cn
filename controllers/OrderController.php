@@ -84,12 +84,16 @@ class OrderController extends Controller
                     ];
 
                     if ($data['data'][$key]['isMoreProduct'] > 1) {
+                        $_productData = [];
                         foreach ($attachData[$val['id']] as $v) {
+                            $_productData = $v['product_id'];
                             $data['data'][$key]['images'][] =$v['product']['image'];
                         }
+                        $data['data'][$key]['productData'] = json_encode($_productData);
                     } else {
                         $data['data'][$key]['title'] = $attachData[$val['id']][0]['product']['name'];
                         $data['data'][$key]['image'] = $attachData[$val['id']][0]['product']['image'];
+                        $data['data'][$key]['productData'] = $attachData[$val['id']][0]['product_id'];
                     }
                 }
             }
@@ -215,26 +219,79 @@ class OrderController extends Controller
     }
 
     /**
-     * 确认收货
-     * @return mixed
-     */
-    public function actionConfirmReceipt()
-    {
-        $requestData = Yii::$app->request->post();
-        $orderId = (int) ArrayHelper::getValue($requestData, 'orderId', 1);
-        $this->data['code'] = self::API_CODE_SUCCESS;
-        return $this->data;
-    }
-
-    /**
      * 支付
      * @return mixed
      */
     public function actionPayment()
     {
         $requestData = Yii::$app->request->post();
-        $orderId = (int) ArrayHelper::getValue($requestData, 'orderId', 1);
-        $this->data['code'] = self::API_CODE_SUCCESS;
+        $id = (int) ArrayHelper::getValue($requestData, 'id');
+        if($id > 0){
+            $model = Order::findOne(['id' => $id, 'status' => Order::ORDER_STATUS_NOT_PAY]);
+            if($model){
+                $this->data = [
+                    'code' => self::API_CODE_SUCCESS,
+                    'msg' => self::API_CODE_SUCCESS_MSG,
+                    'data' => [
+                        'id' => $id,
+                        'timeStamp' => '',
+                        'nonceStr' => '',
+                        'package' => '',
+                        'paySign' => ''
+                    ]
+                ];
+            }
+        }
+        return $this->data;
+    }
+
+    /**
+     * 取消
+     * @return mixed
+     */
+    public function actionCancel()
+    {
+        $requestData = Yii::$app->request->post();
+        $id = (int) ArrayHelper::getValue($requestData, 'id');
+        if($id > 0){
+            $model = Order::findOne(['id' => $id, 'status' => Order::ORDER_STATUS_NOT_PAY]);
+            $model->status = Order::ORDER_STATUS_HAS_CANCEL;
+            $model->complete_time = time();
+            if ($model->save()) {
+                $this->data = [
+                    'code' => self::API_CODE_SUCCESS,
+                    'msg' => self::API_CODE_SUCCESS_MSG
+                ];
+            } else {
+                $this->data['msg'] = '服务器异常，请联系管理员';
+            }
+        }
+        return $this->data;
+    }
+
+    /**
+     * 确认收货
+     * @return mixed
+     */
+    public function actionConfirmReceipt()
+    {
+        $requestData = Yii::$app->request->post();
+        $id = (int) ArrayHelper::getValue($requestData, 'id');
+        if($id > 0) {
+            $model = Order::findOne(['id' => $id, 'status' => Order::ORDER_STATUS_STAY_RECEIVE_GOODS]);
+            if ($model) {
+                $model->status = Order::ORDER_STATUS_HAS_COMPLETE;
+                $model->complete_time = time();
+                if ($model->save()) {
+                    $this->data = [
+                        'code' => self::API_CODE_SUCCESS,
+                        'msg' => self::API_CODE_SUCCESS_MSG
+                    ];
+                } else {
+                    $this->data['msg'] = '服务器异常，请联系管理员';
+                }
+            }
+        }
         return $this->data;
     }
 }
