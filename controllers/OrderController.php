@@ -108,25 +108,56 @@ class OrderController extends Controller
      */
     public function actionDetail()
     {
-        $this->data['code'] = self::API_CODE_SUCCESS;
-        $this->data['data'] = [
-            'title' => 'LANCOME兰蔻小黑瓶精华肌底液',
-            'detail' => '东西还可以，好评~,东西还可以，好评~东西还可以，好评~东西还可以，好评~东西还可以，好评~东西还可以，好评~东西还可以，好评~东西还可以，好评~',
-            'carouselData' => [
-                "http://mz.djmall.xmisp.cn/files/product/20161201/148057921620_middle.jpg",
-                "http://mz.djmall.xmisp.cn/files/product/20161201/148057922659_middle.jpg",
-                "http://mz.djmall.xmisp.cn/files/product/20161201/148057923813_middle.jpg",
-                "http://mz.djmall.xmisp.cn/files/product/20161201/148057924965_middle.jpg",
-                "http://mz.djmall.xmisp.cn/files/product/20161201/148057925958_middle.jpg"
-            ],
-            'imgData' => [
-                "http://mz.djmall.xmisp.cn/files/product/20161201/148057921620_middle.jpg",
-                "http://mz.djmall.xmisp.cn/files/product/20161201/148057922659_middle.jpg",
-                "http://mz.djmall.xmisp.cn/files/product/20161201/148057923813_middle.jpg",
-                "http://mz.djmall.xmisp.cn/files/product/20161201/148057924965_middle.jpg",
-                "http://mz.djmall.xmisp.cn/files/product/20161201/148057925958_middle.jpg"
-            ]
-        ];
+        $requestData = Yii::$app->request->post();
+        $id = (int) ArrayHelper::getValue($requestData, 'id');
+        if($id > 0){
+            $orderData = Order::find()
+                ->innerJoinWith(['attach' => function(ActiveQuery $query) {
+                    $query->select(['order_id', 'product_id', 'buy_number', 'buy_price'])->innerJoinWith(['product' => function(ActiveQuery $query){
+                        $query->select(['id', 'name', 'image']);
+                    }]);
+                }])
+                ->innerJoinWith('address')
+                ->where([Order::tableName() . '.id' => $id, 'user_id' => $this->userInfo['id']])
+                ->asArray()
+                ->one();
+
+            if($orderData){
+                $orderData['address']['telNumber'] = substr_replace($orderData['address']['telNumber'], '****', 3,4);
+                $data = [
+                    'id' => $orderData['id'],
+                    'orderNumber' => $orderData['order_number'],
+                    'totalAmount' => $orderData['total_amount'],
+                    'totalNumber' => $orderData['total_number'],
+                    'status' => $orderData['status'],
+                    'statusText' => Order::$statusArray[$orderData['status']],
+                    'serialNumber' => $orderData['serial_number'],
+                    'paymentTime' => $this->getDate($orderData['payment_time']),
+                    'deliveryTime' => $this->getDate($orderData['delivery_time']),
+                    'completeTime' => $this->getDate($orderData['complete_time']),
+                    'createdTime' => $this->getDate($orderData['created_at']),
+                    'address' => $orderData['address']
+                ];
+
+                $productArray = [];
+                foreach ($orderData['attach'] as $val){
+                    $data['productData'][] = [
+                        'id' => $val['product_id'],
+                        'price' => $val['buy_price'],
+                        'number' => $val['buy_number'],
+                        'title' => $val['product']['name'],
+                        'image' => $val['product']['image']
+                    ];
+                    $productArray[] = $val['product_id'];
+                }
+                $data['productArray'] = json_encode($productArray);
+                $this->data = [
+                    'code' => self::API_CODE_SUCCESS,
+                    'msg' => self::API_CODE_SUCCESS_MSG,
+                    'data' => $data
+                ];
+            }
+        }
         return $this->data;
     }
 
@@ -227,7 +258,7 @@ class OrderController extends Controller
         $requestData = Yii::$app->request->post();
         $id = (int) ArrayHelper::getValue($requestData, 'id');
         if($id > 0){
-            $model = Order::findOne(['id' => $id, 'status' => Order::ORDER_STATUS_NOT_PAY]);
+            $model = Order::findOne(['id' => $id, 'user_id' => $this->userInfo['id'], 'status' => Order::ORDER_STATUS_NOT_PAY]);
             if($model){
                 $this->data = [
                     'code' => self::API_CODE_SUCCESS,
@@ -254,7 +285,7 @@ class OrderController extends Controller
         $requestData = Yii::$app->request->post();
         $id = (int) ArrayHelper::getValue($requestData, 'id');
         if($id > 0){
-            $model = Order::findOne(['id' => $id, 'status' => Order::ORDER_STATUS_NOT_PAY]);
+            $model = Order::findOne(['id' => $id, 'user_id' => $this->userInfo['id'], 'status' => Order::ORDER_STATUS_NOT_PAY]);
             $model->status = Order::ORDER_STATUS_HAS_CANCEL;
             $model->complete_time = time();
             if ($model->save()) {
@@ -278,7 +309,7 @@ class OrderController extends Controller
         $requestData = Yii::$app->request->post();
         $id = (int) ArrayHelper::getValue($requestData, 'id');
         if($id > 0) {
-            $model = Order::findOne(['id' => $id, 'status' => Order::ORDER_STATUS_STAY_RECEIVE_GOODS]);
+            $model = Order::findOne(['id' => $id, 'user_id' => $this->userInfo['id'], 'status' => Order::ORDER_STATUS_STAY_RECEIVE_GOODS]);
             if ($model) {
                 $model->status = Order::ORDER_STATUS_HAS_COMPLETE;
                 $model->complete_time = time();
@@ -293,5 +324,15 @@ class OrderController extends Controller
             }
         }
         return $this->data;
+    }
+
+    /**
+     * 时间转换
+     * @param $timestamp
+     * @return false|int|string
+     */
+    public function getDate($timestamp)
+    {
+        return $timestamp ? date('Y-m-d H:i:s', $timestamp) : 0;
     }
 }

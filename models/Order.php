@@ -29,6 +29,14 @@ class Order extends \yii\db\ActiveRecord
     const ORDER_STATUS_HAS_REFUND = 6; // 已退款
     const ORDER_STATUS_STAY_REFUND = 7; // 待退款
 
+    public static $statusArray = [
+        self::ORDER_STATUS_NOT_PAY => '未支付',
+        self::ORDER_STATUS_STAY_SEND_GOODS => '待发货',
+        self::ORDER_STATUS_STAY_RECEIVE_GOODS => '待收货',
+        self::ORDER_STATUS_HAS_COMPLETE => '已完成',
+        self::ORDER_STATUS_HAS_CANCEL => '已取消'
+    ];
+
     /**
      * @inheritdoc
      */
@@ -90,6 +98,15 @@ class Order extends \yii\db\ActiveRecord
     public function getAttach()
     {
         return $this->hasMany(OrderAttach::className(), ['order_id' => 'id'])->select(['order_id', 'product_id']);
+    }
+
+    /**
+     * 订单和收货地址的关联
+     * @return \yii\db\ActiveQuery
+     */
+    public function getAddress()
+    {
+        return $this->hasOne(OrderAddress::className(), ['order_id' => 'id'])->select(['order_id', 'userName', 'telNumber', 'provinceName', 'cityName', 'countyName', 'detailInfo', 'postalCode']);
     }
 
     /**
