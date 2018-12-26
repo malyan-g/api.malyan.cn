@@ -27,7 +27,8 @@ class Controller extends \yii\web\Controller
     public $userInfo;
     public $permissions = [
         'index/index',
-        'user/login'
+        'user/login',
+        'user/certificate'
     ];
 
     /**
