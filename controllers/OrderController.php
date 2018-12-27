@@ -26,7 +26,7 @@ use yii\data\ActiveDataProvider;
 class OrderController extends Controller
 {
     /**
-     * 商品列表
+     * 订单列表
      * @return mixed
      */
     public function actionList()
@@ -123,7 +123,7 @@ class OrderController extends Controller
                 ->one();
 
             if($orderData){
-                $orderData['address']['telNumber'] = substr_replace($orderData['address']['telNumber'], '****', 3,4);
+                /*$orderData['address']['telNumber'] = substr_replace($orderData['address']['telNumber'], '****', 3,4);*/
                 $data = [
                     'id' => $orderData['id'],
                     'orderNumber' => $orderData['order_number'],
@@ -140,6 +140,12 @@ class OrderController extends Controller
                     'address' => $orderData['address']
                 ];
 
+                if($orderData['status'] == Order::ORDER_STATUS_NOT_PAY){
+                    $statusTime = $orderData['created_at'] + 24*3600 - time();
+                    $h = floor($statusTime/3600);
+                    $i = floor(($statusTime - $h*3600)/60);
+                    $data['statusTime'] = '（支付剩余' . $h . '时' . $i .'分）';
+                }
                 $productArray = [];
                 foreach ($orderData['attach'] as $val){
                     $data['productData'][] = [
@@ -169,13 +175,17 @@ class OrderController extends Controller
     public function actionAdd()
     {
         $requestData = Yii::$app->request->post();
-        $orderData = json_decode(ArrayHelper::getValue($requestData, 'orderData'), true);
+        $_orderData = json_decode(ArrayHelper::getValue($requestData, 'orderData'), true);
         $addressData = json_decode(ArrayHelper::getValue($requestData, 'addressData'), true);
 
         // 判断数据的合法性
-        if(is_array($orderData) && $orderData && is_array($addressData) && $addressData){
+        if(is_array($_orderData) && $_orderData && is_array($addressData) && $addressData){
+            $orderData = [];
+            foreach ($_orderData as $val){
+                $orderData[$val['id']] = $val;
+            }
             // 获取产品ID数据
-            $productArray =  array_keys($orderData);
+            $productArray =  array_values(array_column($_orderData, 'id'));
             $query = Product::find();
             // 会员查会员价格
             $isMember = $this->userInfo['is_member'] ? true : false;
@@ -189,6 +199,7 @@ class OrderController extends Controller
             }
             $productData = $query
                 ->where([Product::tableName() . '.id' => $productArray, 'status' => Product::NORMAL_STATUS])
+                ->indexBy('id')
                 ->asArray()
                 ->all();
 
@@ -204,16 +215,16 @@ class OrderController extends Controller
                         $orderAddress->order_id = $order->id;
                         $orderAddress->save();
                         // 购买产品处理
-                        foreach ($productData as $val){
+                        foreach ($productArray as $val){
                             $_orderAttach = clone  $orderAttach;
                             $_orderAttach->order_id = $order->id;
-                            $_orderAttach->product_id = $val['id'];
-                            $_orderAttach->buy_number = $orderData[$val['id']]['count'];
+                            $_orderAttach->product_id = $val;
+                            $_orderAttach->buy_number = $orderData[$val]['count'];
                             // 是否是会员价格
                             if($isMember){
-                                $_orderAttach->buy_price = $val['member_price'] ? $val['member_price'] : $val['price'];
+                                $_orderAttach->buy_price = $productData[$val]['member_price'] ?  $productData[$val]['member_price'] :  $productData[$val]['price'];
                             }else{
-                                $_orderAttach->buy_price = $val['price'];
+                                $_orderAttach->buy_price =  $productData[$val]['price'];
                             }
                             // 验证失败直接数据回滚
                             if($_orderAttach->validate()){
