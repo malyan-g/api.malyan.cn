@@ -131,6 +131,7 @@ class OrderController extends Controller
                     'totalNumber' => $orderData['total_number'],
                     'status' => $orderData['status'],
                     'statusText' => Order::$statusArray[$orderData['status']],
+                    'statusImage' => Order::$statusImageArray[$orderData['status']],
                     'serialNumber' => $orderData['serial_number'],
                     'paymentTime' => $this->getDate($orderData['payment_time']),
                     'deliveryTime' => $this->getDate($orderData['delivery_time']),

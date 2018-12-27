@@ -37,6 +37,15 @@ class Order extends \yii\db\ActiveRecord
         self::ORDER_STATUS_HAS_CANCEL => '已取消'
     ];
 
+    public static $statusImageArray = [
+        self::ORDER_STATUS_NOT_PAY => 'not-pay',
+        self::ORDER_STATUS_STAY_SEND_GOODS => 'send-goods',
+        self::ORDER_STATUS_STAY_RECEIVE_GOODS => 'receive-goods',
+        self::ORDER_STATUS_HAS_COMPLETE => 'complete',
+        self::ORDER_STATUS_HAS_CANCEL => 'cancel'
+    ];
+
+
     /**
      * @inheritdoc
      */

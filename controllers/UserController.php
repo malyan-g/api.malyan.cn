@@ -12,6 +12,8 @@ use YII;
 use app\models\User;
 use app\components\helpers\ScHelper;
 use app\components\helpers\WxApiHelper;
+use PhpOffice\PhpWord\TemplateProcessor;
+use app\components\helpers\QiniuApiHelper;
 
 /**
  * 用户接口
@@ -54,5 +56,32 @@ class UserController extends Controller
             $this->data['msg'] = '非法请求';
         }
         return $this->data;
+    }
+
+    /**
+     * 生成证书
+     * @param $id
+     * @throws \PhpOffice\PhpWord\Exception\CopyFileException
+     * @throws \PhpOffice\PhpWord\Exception\CreateTemporaryFileException
+     */
+    public function actionCertificate()
+    {
+        // word路径
+        $path = Yii::getAlias('@webroot') . '/files/';
+        // 替换模板中的变量并保存
+        $wordTemplate = $path . 'certificate.docx';
+        $templateProcessor = new TemplateProcessor($wordTemplate);
+        $templateProcessor->setValue('certificate_number', 20181225001);
+        $templateProcessor->setValue('name', '马亮');
+        $templateProcessor->setValue('member_name', '金卡');
+        $templateProcessor->setValue('id_card', 612727199111050057);
+        $templateProcessor->setValue('issue_date', 20181225);
+        $templateProcessor->setValue('valid_date', 20191225);
+        $wordName = $path . md5('certificate-' . $this->userInfo['id'] ). '.docx';
+        $templateProcessor->saveAs($wordName);
+        // 上传七牛
+        //QiniuApiHelper::upload($wordName);
+        // 删除本地文件
+        //unlink($wordName);
     }
 }
