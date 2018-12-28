@@ -55,7 +55,7 @@ class Controller extends \yii\web\Controller
                 $userInfo = Yii::$app->cache->get($cacheUserLoginKey);
                 if($userInfo){
                     $this->userInfo = $userInfo;
-                    Yii::$app->cache->set($cacheUserLoginKey, $userInfo,1800);
+                    //Yii::$app->cache->set($cacheUserLoginKey, $userInfo,1800);
                 }else{
                     $this->data['msg'] = '请求超时';
                     Yii::$app->response->data = $this->data;
