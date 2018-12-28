@@ -69,7 +69,7 @@ class UserController extends Controller
         $memberModel = Member::findOne(['id' =>  $this->userInfo['member_id']]);
         $data = [
             'userId' => $this->userInfo['id'],
-            'memberId' => $this->userInfo['member_id'],
+            'memberId' => $memberModel ? $this->userInfo['member_id'] : 0,
             'memberName' => $memberModel ? $memberModel->name : '普通会员',
             'percent' => 38
         ];
