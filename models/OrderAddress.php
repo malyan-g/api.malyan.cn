@@ -23,7 +23,7 @@ class OrderAddress extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'cgt_order_address';
+        return '{{%order_address}}';
     }
 
     /**

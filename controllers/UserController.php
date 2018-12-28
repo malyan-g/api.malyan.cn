@@ -8,6 +8,8 @@
 
 namespace app\controllers;
 
+use app\models\Complaint;
+use app\models\Member;
 use YII;
 use app\models\User;
 use app\components\helpers\ScHelper;
@@ -59,6 +61,60 @@ class UserController extends Controller
     }
 
     /**
+     * 首页
+     * @return array
+     */
+    public function actionIndex()
+    {
+        $memberModel = Member::findOne(['id' =>  $this->userInfo['member_id']]);
+        $data = [
+            'userId' => $this->userInfo['id'],
+            'memberId' => $this->userInfo['member_id'],
+            'memberName' => $memberModel ? $memberModel->name : '普通会员',
+            'percent' => 38
+        ];
+        $this->data = [
+            'code' => self::API_CODE_SUCCESS,
+            'msg' => self::API_CODE_SUCCESS_MSG,
+            'data' => $data
+        ];
+        return $this->data;
+    }
+
+    /**
+     * 投诉与建议
+     * @return array
+     */
+    public function actionComplaint()
+    {
+        $todayTime = strtotime(date("Y-m-d"), time());
+        $count = Complaint::find()
+            ->where(['user_id' => $this->userInfo['id']])
+            ->andWhere(['between', 'created_at', $todayTime, $todayTime + 24*3600])
+            ->count();
+        if($count < 5){
+            $describe = Yii::$app->request->post('describe');
+            $model = new Complaint();
+            $data = [
+                'user_id' => $this->userInfo['id'],
+                'describe' => $describe
+            ];
+            if($model->load(['data' => $data], 'data') && $model->validate()){
+                if($model->save()){
+                    $this->data = [
+                        'code' => self::API_CODE_SUCCESS,
+                        'msg' => self::API_CODE_SUCCESS_MSG
+                    ];
+                }
+            }
+        }else{
+            $this->data['msg'] = '每日最多可提交5条投诉或者建议';
+        }
+
+        return $this->data;
+    }
+
+    /**
      * 生成证书
      * @param $id
      * @throws \PhpOffice\PhpWord\Exception\CopyFileException
@@ -84,4 +140,6 @@ class UserController extends Controller
         // 删除本地文件
         //unlink($wordName);
     }
+
+
 }

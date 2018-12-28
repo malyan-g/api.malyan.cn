@@ -18,7 +18,7 @@ class ProductAttach extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'cgt_product_attach';
+        return '{{%product_attach}}';
     }
 
     /**

@@ -18,7 +18,7 @@ class Member extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'cgt_member';
+        return '{{%member}}';
     }
 
     /**

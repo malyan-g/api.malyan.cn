@@ -20,7 +20,7 @@ class ProductPrice extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'cgt_product_price';
+        return '{{%product_price}}';
     }
 
     /**
