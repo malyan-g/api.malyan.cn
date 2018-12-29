@@ -10,12 +10,14 @@ namespace app\controllers;
 
 use app\models\Complaint;
 use app\models\Member;
+use app\models\MemberInvite;
 use YII;
 use app\models\User;
 use app\components\helpers\ScHelper;
 use app\components\helpers\WxApiHelper;
 use PhpOffice\PhpWord\TemplateProcessor;
 use app\components\helpers\QiniuApiHelper;
+use yii\db\ActiveQuery;
 
 /**
  * 用户接口
@@ -85,6 +87,49 @@ class UserController extends Controller
         return $this->data;
     }
 
+    public function actionGroup()
+    {
+         $inviteData =   MemberInvite::find()
+             ->select([MemberInvite::tableName() . '.user_id'])
+             ->where([MemberInvite::tableName() . '.invite_user_id' => $this->userId])
+             ->joinWith(['user' => function(ActiveQuery $query) {
+                 $query->joinWith(['member AS m']);
+             }])
+             ->joinWith(['invite AS t' => function(ActiveQuery $query) {
+                 $query->joinWith(['user2 AS u' => function(ActiveQuery $query){
+                     $query->joinWith(['member2 AS mb']);
+                 }]);
+             }])
+             ->orderBy([MemberInvite::tableName() . '.created_at' => SORT_ASC])
+             ->asArray()
+             ->all();
+         if($inviteData){
+             $data = [];
+             foreach ($inviteData as $key => $val){
+                 $data[$key] = [
+                     'realname' => $val['user']['realname'],
+                     'memberName' => $val['user']['member']['name'],
+                 ];
+
+                 if($val['invite']){
+                     $data[$key]['isHidden'] = true;
+                     foreach ($val['invite'] as $v){
+                         $data[$key]['item'][] = [
+                             'realname' => $v['user2']['realname'],
+                             'memberName' => $v['user2']['member2']['name'],
+                         ];
+                     }
+                 }
+             }
+             $this->data = [
+                 'code' => self::API_CODE_SUCCESS,
+                 'msg' => self::API_CODE_SUCCESS_MSG,
+                 'data' => $data
+             ];
+         }
+        return $this->data;
+    }
+
     /**
      * 投诉与建议
      * @return array
@@ -144,6 +189,4 @@ class UserController extends Controller
         // 删除本地文件
         //unlink($wordName);
     }
-
-
 }

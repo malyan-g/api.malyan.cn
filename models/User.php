@@ -68,6 +68,16 @@ class User extends \yii\db\ActiveRecord
         ];
     }
 
+    public function getMember()
+    {
+        return $this->hasOne(Member::className(), ['id' => 'member_id'])->select([ 'm.id', 'name']);
+    }
+
+    public function getMember2()
+    {
+        return $this->hasOne(Member::className(), ['id' => 'member_id'])->select([ 'mb.id', 'name']);
+    }
+
     /**
      * 获取用户
      * @param $openid

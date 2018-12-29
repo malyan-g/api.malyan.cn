@@ -44,4 +44,19 @@ class MemberInvite extends \yii\db\ActiveRecord
             'created_at' => '创建时间',
         ];
     }
+
+    public function getUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'user_id'])->select([User::tableName() .'.id', 'realname', 'member_id']);
+    }
+
+    public function getUser2()
+    {
+        return $this->hasOne(User::className(), ['id' => 'user_id'])->select(['u.id', 'realname', 'member_id']);
+    }
+
+    public function getInvite()
+    {
+        return $this->hasMany(self::className(), ['invite_user_id' => 'user_id'])->select(['user_id', 'invite_user_id']);
+    }
 }
