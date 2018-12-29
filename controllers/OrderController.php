@@ -261,16 +261,16 @@ class OrderController extends Controller
                             if($order->balance_amount){
                                 // 用户余额
                                 $user->balance_amount = $user->balance_amount - $order->balance_amount;
-                                // 余额小于300，30天内不续费，取消会员价购买资格
-                                if($user->balance_amount  < 300){
-                                    $user->balance_expire_time = time() + 30 * 24 * 3600;
-                                }
-                                $user->save();
                                 //  全是余额购买，直接扣款
                                 if($order->balance_amount === $order->total_amount){
                                     $order->status = Order::ORDER_STATUS_STAY_SEND_GOODS;
                                     $order->payment_time = $order->created_at;
+                                    // 余额小于300，30天内不续费，取消会员价购买资格
+                                    if($user->balance_amount  < 300){
+                                        $user->balance_expire_time = time() + 30 * 24 * 3600;
+                                    }
                                 }
+                                $user->save();
                             }
                             // 实际现金付款金额
                             $order->cash_amount = $order->total_amount - $order->balance_amount;
@@ -347,12 +347,20 @@ class OrderController extends Controller
             $model = Order::findOne(['id' => $id, 'user_id' => $this->userId, 'status' => Order::ORDER_STATUS_NOT_PAY]);
             $model->status = Order::ORDER_STATUS_HAS_CANCEL;
             $model->complete_time = time();
-            if ($model->save()) {
+            $trans = Yii::$app->db->beginTransaction();
+            try {
+                if($model->balance_amount){
+                    $user = User::findOne($this->userId);
+                    $user->balance_amount = $user->balance_amount  + $model->balance_amount;
+                    $user->save();
+                }
+                $model->save();
                 $this->data = [
                     'code' => self::API_CODE_SUCCESS,
                     'msg' => self::API_CODE_SUCCESS_MSG
                 ];
-            } else {
+            } catch (\Exception $e) {
+                $trans->rollBack();
                 $this->data['msg'] = '服务器异常，请联系管理员';
             }
         }
