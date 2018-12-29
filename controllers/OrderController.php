@@ -265,7 +265,7 @@ class OrderController extends Controller
                                 if($user->balance_amount  < 300){
                                     $user->balance_expire_time = time() + 30 * 24 * 3600;
                                 }
-                                $order->save();
+                                $user->save();
                                 //  全是余额购买，直接扣款
                                 if($order->balance_amount === $order->total_amount){
                                     $order->status = Order::ORDER_STATUS_STAY_SEND_GOODS;
@@ -274,7 +274,7 @@ class OrderController extends Controller
                             }
                             // 实际现金付款金额
                             $order->cash_amount = $order->total_amount - $order->balance_amount;
-                            $user->save();
+                            $order->save();
                             $trans->commit();
 
                             // 订单是否支付
