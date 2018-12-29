@@ -216,7 +216,7 @@ class OrderController extends Controller
                     if ($order->validate() && $orderAddress->load(['data' => $addressData], 'data') && $orderAddress->validate()) {
                         $orderAttach = new OrderAttach();
                         $trans = Yii::$app->db->beginTransaction();
-                        //try {
+                        try {
                             $order->save();
                             $orderAddress->order_id = $order->id;
                             $orderAddress->save();
@@ -298,9 +298,9 @@ class OrderController extends Controller
                                 'msg' => self::API_CODE_SUCCESS_MSG,
                                 'data' => $data
                             ];
-                        //} catch (\Exception $e) {
+                        } catch (\Exception $e) {
                             $trans->rollBack();
-                        //}
+                        }
                     }
                 }
             }
