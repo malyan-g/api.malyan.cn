@@ -38,7 +38,7 @@ class OrderController extends Controller
         if($page > 0) {
             $this->data['code'] = self::API_CODE_SUCCESS;
             $query = Order::find()
-                ->select(['id', 'order_number', 'total_amount', 'total_number', 'status'])
+                ->select(['id', 'order_number', 'total_amount', 'total_number', 'cash_amount',  'status'])
                 ->where(['user_id' => $this->userId]);
 
             // 订单状态
@@ -78,7 +78,7 @@ class OrderController extends Controller
                     $data['data'][$key] = [
                         'id' => $val['id'],
                         'orderNumber' => $val['order_number'],
-                        'totalAmount' => $val['total_amount'],
+                        'totalAmount' => $val['status'] == Order::ORDER_STATUS_HAS_CANCEL ? $val['total_amount'] : $val['cash_amount'],
                         'totalNumber' => $val['total_number'],
                         'status' => $val['status'],
                         'isMoreProduct' => count($attachData[$val['id']])
