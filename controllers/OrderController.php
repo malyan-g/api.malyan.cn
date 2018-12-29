@@ -190,7 +190,7 @@ class OrderController extends Controller
             $user = User::findOne($this->userId);
             if($user && $productArray){
                 $query = Product::find();
-                $selectData = [Product::tableName() . '.id',  'price'];
+                $selectData = [Product::tableName() . '.id',  'price', 'is_balance'];
                 //  会员查会员价格
                 if($user->is_member){
                     $selectData = array_merge($selectData, ['member_price']) ;
@@ -221,15 +221,17 @@ class OrderController extends Controller
                             $orderAddress->order_id = $order->id;
                             $orderAddress->save();
                             // 购买产品处理
+                            $balance_amount = 0;
                             foreach ($productArray as $val) {
                                 $_orderAttach = clone  $orderAttach;
                                 $_orderAttach->order_id = $order->id;
                                 $_orderAttach->product_id = $val;
                                 $_orderAttach->buy_number = $orderData[$val]['count'];
+                                $_orderAttach->is_balance = $orderData[$val]['is_balance'];
                                 // 是否是会员价格
                                 if ($user->is_member && $productData[$val]['member_price']) {
                                     $_orderAttach->buy_price = $productData[$val]['member_price'];
-                                }else if ($isBalance && $productData[$val]['balance_price']) {
+                                }else if ($isBalance && $productData[$val]['is_balance'] && $productData[$val]['balance_price']) {
                                     $_orderAttach->buy_price = $productData[$val]['balance_price'];
                                 }else {
                                     $_orderAttach->buy_price = $productData[$val]['price'];
@@ -243,23 +245,58 @@ class OrderController extends Controller
                                     return $this->data;
                                 }
 
+                                // 商品可余额付款金额
+                                if($productData[$val]['is_balance'] ){
+                                    $balance_amount += $_orderAttach->buy_price * $_orderAttach->buy_number;
+                                }
+
                                 // 计算购买总价和购买总数量
                                 $order->total_number += $_orderAttach->buy_number;
                                 $order->total_amount += $_orderAttach->buy_price * $_orderAttach->buy_number;
                             }
 
-                            $order->save();
+                            // 余额付款实际金额
+                            $order->balance_amount = $balance_amount  > $user->balance_amount ? $user->balance_amount : $balance_amount;
+                            // 有余额购买
+                            if($order->balance_amount){
+                                // 用户余额
+                                $user->balance_amount = $user->balance_amount - $order->balance_amount;
+                                // 余额小于300，30天内不续费，取消会员价购买资格
+                                if($user->balance_amount  < 300){
+                                    $user->balance_expire_time = time() + 30 * 24 * 3600;
+                                }
+                                $order->save();
+                                //  全是余额购买，直接扣款
+                                if($order->balance_amount === $order->total_amount){
+                                    $order->status = Order::ORDER_STATUS_STAY_SEND_GOODS;
+                                    $order->payment_time = $order->created_at;
+                                }
+                            }
+                            // 实际现金付款金额
+                            $order->cash_amount = $order->total_amount - $order->balance_amount;
+                            $user->save();
                             $trans->commit();
-                            $this->data = [
-                                'code' => self::API_CODE_SUCCESS,
-                                'msg' => self::API_CODE_SUCCESS_MSG,
-                                'data' => [
+
+                            // 订单是否支付
+                            if($order->status === Order::ORDER_STATUS_STAY_SEND_GOODS){
+                               $data = [
+                                   'isPayment' => true,
+                                   'id' => $order->id
+                                ];
+                            }else{
+                                $data = [
+                                    'isPayment' => false,
                                     'id' => $order->id,
                                     'timeStamp' => '',
                                     'nonceStr' => '',
                                     'package' => '',
                                     'paySign' => ''
-                                ]
+                                ];
+                            }
+                            $this->data = [
+                                'code' => self::API_CODE_SUCCESS,
+                                'msg' => self::API_CODE_SUCCESS_MSG,
+                                'data' => $data
                             ];
                         } catch (\Exception $e) {
                             $trans->rollBack();

@@ -13,7 +13,7 @@ use Yii;
  * @property string $label
  * @property string $price
  * @property integer $status
- * @property integer $balance_deduct
+ * @property integer $is_balance
  * @property integer $sort
  * @property integer $created_at
  */
@@ -43,7 +43,7 @@ class Product extends \yii\db\ActiveRecord
     {
         return [
             [['price'], 'number'],
-            [['status', 'balance_deduct', 'sort', 'created_at'], 'integer'],
+            [['status', 'is_balance', 'sort', 'created_at'], 'integer'],
             [['name', 'label'], 'string', 'max' => 80],
             [['image'], 'string', 'max' => 120],
         ];
@@ -61,7 +61,7 @@ class Product extends \yii\db\ActiveRecord
             'label' => '标签',
             'price' => '价格',
             'status' => '状态（1:上架 2:下价）',
-            'balance_deduct' => '支持余额',
+            'is_balance' => '支持余额',
             'sort' => '排序',
             'created_at' => '创建时间',
         ];

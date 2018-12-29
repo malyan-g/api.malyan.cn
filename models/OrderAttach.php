@@ -12,6 +12,7 @@ use Yii;
  * @property integer $product_id
  * @property integer $buy_number
  * @property string $buy_price
+ * @property string $is_balance
  */
 class OrderAttach extends \yii\db\ActiveRecord
 {
@@ -29,8 +30,8 @@ class OrderAttach extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['order_id', 'product_id', 'product_id', 'buy_price'], 'required'],
-            [['order_id', 'product_id', 'buy_number'], 'integer'],
+            [['order_id', 'product_id', 'product_id', 'buy_price', 'is_balance'], 'required'],
+            [['order_id', 'product_id', 'buy_number', 'is_balance'], 'integer'],
             [['buy_number'], 'compare', 'compareValue' => 1, 'operator' => '>='],
             [['buy_number'], 'compare', 'compareValue' => 999, 'operator' => '<='],
             [['buy_price'], 'number'],
@@ -48,6 +49,7 @@ class OrderAttach extends \yii\db\ActiveRecord
             'product_id' => '产品ID',
             'buy_number' => '购买数量',
             'buy_price' => '价格',
+            'is_balance' => '余额付款',
         ];
     }
 

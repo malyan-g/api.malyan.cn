@@ -136,6 +136,15 @@ class UserController extends Controller
     }
 
     /**
+     * 我的业绩
+     * @return array
+     */
+    public function actionAchievement()
+    {
+
+    }
+
+    /**
      * 投诉与建议
      * @return array
      */

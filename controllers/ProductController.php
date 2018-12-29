@@ -117,7 +117,7 @@ class ProductController extends Controller
                 if($productData){
                     // 查询价格
                     $isBalance = $user->is_balance && ($user->balance_expire_time == 0 || $user->balance_expire_time > time()) ? true : false;
-                    if($productData['balance_deduct'] && $isBalance){ // 余额价
+                    if($productData['is_balance'] && $isBalance){ // 余额价
                         $priceData = ProductBalancePrice::find()
                             ->select(['balance_price as member_price', 'describe'])
                             ->where(['product_id' => $id, 'balance_id' => $user->balance_id])
@@ -185,7 +185,7 @@ class ProductController extends Controller
                     // 支持余额价格
                     $isBalance = $user->is_balance && ($user->balance_expire_time == 0 || $user->balance_expire_time > time()) ? true : false;
                     if($isBalance){
-                        $selectData = array_merge($selectData, ['balance_price', ProductBalancePrice::tableName() . '.describe as balance_describe']) ;
+                        $selectData = array_merge($selectData, ['balance_price', ProductBalancePrice::tableName() . '.describe as balance_describe', 'is_balance']) ;
                         $query = $query->leftJoin(ProductBalancePrice::tableName(), ProductBalancePrice::tableName() . '.product_id=' . Product::tableName() . '.id and ' . ProductBalancePrice::tableName() . '.balance_id=' . $user->balance_id);
                     }
                     // 上架产品
@@ -203,14 +203,17 @@ class ProductController extends Controller
                         if($isMember && $val['member_price']){
                             $data[$val['id']]['price'] = $val['member_price'];
                             $data[$val['id']]['isMember'] =  true;
+                            $data[$val['id']]['isBalance'] =  false;
                             $data[$val['id']]['memberName'] = $val['describe'];
-                        }else if($isBalance && $val['balance_price']){
+                        }else if($isBalance && $val['is_balance'] && $val['balance_price']){
                             $data[$val['id']]['price'] = $val['balance_price'];
                             $data[$val['id']]['isMember'] =  true;
+                            $data[$val['id']]['isBalance'] =  true;
                             $data[$val['id']]['memberName'] = $val['balance_describe'];
                         }else{
                             $data[$val['id']]['price'] = $val['price'];
                             $data[$val['id']]['isMember'] =  false;
+                            $data[$val['id']]['isBalance'] =  false;
                             $data[$val['id']]['memberName'] = '';
                         }
                     }
@@ -219,6 +222,7 @@ class ProductController extends Controller
                         $this->data = [
                             'code' => self::API_CODE_SUCCESS,
                             'msg' => self::API_CODE_SUCCESS_MSG,
+                            'userBalance' => $user->balance_amount,
                             'data' => $data
                         ];
                     }
