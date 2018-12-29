@@ -8,6 +8,8 @@
 
 namespace app\controllers;
 
+use app\models\ProductBalancePrice;
+use app\models\User;
 use YII;
 use app\models\Product;
 use yii\helpers\ArrayHelper;
@@ -30,54 +32,65 @@ class ProductController extends Controller
         $requestData = Yii::$app->request->post();
         $page = (int) ArrayHelper::getValue($requestData, 'page', 1);
         if($page > 0){
-            // 查询
-            $query = Product::find();
-            // 会员查会员价格
-            $isMember = $this->userInfo['is_member'] ? true : false;
-            if($isMember){
-                $memberId = $this->userInfo['member_id'];
-                $query = $query
-                    ->select([Product::tableName() . '.id', 'name', 'image', 'label',  'price', 'member_price', 'describe'])
-                    ->leftJoin(ProductPrice::tableName(), ProductPrice::tableName() . '.product_id=' . Product::tableName() . '.id and ' . ProductPrice::tableName() . '.member_id=' . $memberId);
-            }else{
-                $query = $query->select(['id', 'name', 'image', 'label',  'price']);
-            }
-            // 上架产品
-            $query = $query->where(['status' => Product::NORMAL_STATUS]);
-            $allPages = (int) ceil($query->count()/6);
-
-            if($page <= $allPages){
-                $pageSize = 6;
-                $list = $query->offset(($page - 1) * $pageSize)
-                    ->limit($pageSize)
-                    ->asArray()
-                    ->all();
-
-                $data = [
-                    'code' => self::API_CODE_SUCCESS,
-                    'msg' => self::API_CODE_SUCCESS_MSG,
-                    'allPages' => $allPages,
-                ];
-
-                foreach($list as $key => $val){
-                    $data['data'][$key] = [
-                        'id' => $val['id'],
-                        'title' => $val['name'],
-                        'price' => $val['price'],
-                        'labelArray' => empty($val['label']) ?  [] : explode(',', $val['label']),
-                        'imgUrl' => $val['image']
-                    ];
-                    if($isMember){
-                        $data['data'][$key]['isMember'] =  !is_null($val['member_price']);
-                        $data['data'][$key]['memberPrice'] = $val['member_price'] ? $val['member_price'] : 0;
-                        $data['data'][$key]['memberName'] = $val['describe'] ? $val['describe'] : '';
-                    }else{
-                        $data['data'][$key]['isMember'] =  false;
-                        $data['data'][$key]['memberPrice'] = 0;
-                        $data['data'][$key]['memberName'] = '';
-                    }
+            $user = User::findOne($this->userId);
+            if($user){
+                // 查询
+                $query = Product::find();
+                $selectData  = [Product::tableName() . '.id', 'name', 'image', 'label',  'price'];
+                // 会员查会员价格
+                $isMember = $user->is_member ? true : false;
+                if($isMember){
+                    $selectData = array_merge($selectData, ['member_price', ProductPrice::tableName() . '.describe']) ;
+                    $query = $query->leftJoin(ProductPrice::tableName(), ProductPrice::tableName() . '.product_id=' . Product::tableName() . '.id and ' . ProductPrice::tableName() . '.member_id=' . $user->member_id);
                 }
-                $this->data = $data;
+                // 支持余额价格
+                $isBalance = $user->is_balance && ($user->balance_expire_time == 0 || $user->balance_expire_time > time()) ? true : false;
+                if($isBalance){
+                    $selectData = array_merge($selectData, ['balance_price', ProductBalancePrice::tableName() . '.describe as balance_describe']) ;
+                    $query = $query->leftJoin(ProductBalancePrice::tableName(), ProductBalancePrice::tableName() . '.product_id=' . Product::tableName() . '.id and ' . ProductBalancePrice::tableName() . '.balance_id=' . $user->balance_id);
+                }
+                // 上架产品
+                $query = $query->select($selectData)->where(['status' => Product::NORMAL_STATUS]);
+                $allPages = (int) ceil($query->count()/6);
+
+                if($page <= $allPages){
+                    $pageSize = 6;
+                    $list = $query->orderBy(['sort' => SORT_ASC,  'created_at' => SORT_ASC])
+                        ->offset(($page - 1) * $pageSize)
+                        ->limit($pageSize)
+                        ->asArray()
+                        ->all();
+
+                    $data = [
+                        'code' => self::API_CODE_SUCCESS,
+                        'msg' => self::API_CODE_SUCCESS_MSG,
+                        'allPages' => $allPages,
+                    ];
+
+                    foreach($list as $key => $val){
+                        $data['data'][$key] = [
+                            'id' => $val['id'],
+                            'title' => $val['name'],
+                            'price' => $val['price'],
+                            'labelArray' => empty($val['label']) ?  [] : explode(',', $val['label']),
+                            'imgUrl' => $val['image']
+                        ];
+                        if($isMember && $val['member_price']){
+                            $data['data'][$key]['isMember'] =  true;
+                            $data['data'][$key]['memberPrice'] = $val['member_price'];
+                            $data['data'][$key]['memberName'] = $val['describe'];
+                        }else if($isBalance && $val['balance_price']){
+                            $data['data'][$key]['isMember'] =  true;
+                            $data['data'][$key]['memberPrice'] = $val['balance_price'];
+                            $data['data'][$key]['memberName'] = $val['balance_describe'];
+                        }else{
+                            $data['data'][$key]['isMember'] =  false;
+                            $data['data'][$key]['memberPrice'] = 0;
+                            $data['data'][$key]['memberName'] = '';
+                        }
+                    }
+                    $this->data = $data;
+                }
             }
         }
         return $this->data;
@@ -92,42 +105,56 @@ class ProductController extends Controller
         $requestData = Yii::$app->request->post();
         $id = (int) ArrayHelper::getValue($requestData, 'id');
         if($id > 0){
-            $query = Product::find();
-            // 会员查会员价格
-            $isMember = $this->userInfo['is_member'] ? true : false;
-            if($isMember){
-                $memberId = $this->userInfo['member_id'];
-                $query = $query
-                    ->select([Product::tableName() . '.id', 'name', 'image',  'price', 'member_price', ProductPrice::tableName() . '.describe as memberName', 'banner',  ProductAttach::tableName() . '.describe'])
-                    ->leftJoin(ProductPrice::tableName(), ProductPrice::tableName() . '.product_id=' . Product::tableName() . '.id and ' . ProductPrice::tableName() . '.member_id=' . $memberId);
-            }else{
-                $query = $query->select(['id', 'name', 'image',  'price', 'banner',  ProductAttach::tableName() . '.describe']);
-            }
-            $data = $query->innerJoin(ProductAttach::tableName(), ProductAttach::tableName() . '.product_id=' . Product::tableName() . '.id')
-                ->where([Product::tableName() . '.id' => $id, 'status' => Product::NORMAL_STATUS])
-                ->asArray()
-                ->one();
+            $user = User::findOne($this->userId);
+            if($user){
+                // 商品详情
+                $productData = Product::find()
+                    ->select(['id', 'name', 'image',  'price', 'balance_deduct', 'banner', 'describe'])
+                    ->innerJoin(ProductAttach::tableName(), ProductAttach::tableName() . '.product_id=' . Product::tableName() . '.id')
+                    ->where([Product::tableName() . '.id' => $id, 'status' => Product::NORMAL_STATUS])
+                    ->asArray()
+                    ->one();
+                if($productData){
+                    // 查询价格
+                    $isBalance = $user->is_balance && ($user->balance_expire_time == 0 || $user->balance_expire_time > time()) ? true : false;
+                    if($productData['balance_deduct'] && $isBalance){ // 余额价
+                        $priceData = ProductBalancePrice::find()
+                            ->select(['balance_price as member_price', 'describe'])
+                            ->where(['product_id' => $id, 'balance_id' => $user->balance_id])
+                            ->asArray()
+                            ->one();
+                        $isMember = true;
+                    }else if($user->is_member ){ // 会员查会员价格
+                        $priceData = ProductPrice::find()
+                            ->select(['member_price', 'describe'])
+                            ->where(['product_id' => $id, 'member_id' => $user->member_id])
+                            ->asArray()
+                            ->one();
+                        $isMember = true;
+                    }else{
+                        $isMember = false;
+                    }
 
-            if($data){
-                $this->data = [
-                    'code' => self::API_CODE_SUCCESS,
-                    'msg' => self::API_CODE_SUCCESS_MSG,
-                    'data' => [
-                        'id' => $data['id'],
-                        'title' => $data['name'],
-                        'price' => $data['price'],
-                        'carouselData' => $data['banner'] ? explode(',', $data['banner']) : [],
-                        'detailData' => $data['describe'] ? explode(',', $data['describe']) : []
-                    ]
-                ];
-                if($isMember){
-                    $this->data['data']['isMember'] =  !is_null($data['member_price']);
-                    $this->data['data']['memberPrice'] = $data['member_price'] ? $data['member_price'] : 0;
-                    $this->data['data']['memberName'] = $data['memberName'] ? $data['memberName'] : '';
-                }else{
-                    $this->data['data']['isMember'] =  false;
-                    $this->data['data']['memberPrice'] = 0;
-                    $this->data['data']['memberName'] = '';
+                    $this->data = [
+                        'code' => self::API_CODE_SUCCESS,
+                        'msg' => self::API_CODE_SUCCESS_MSG,
+                        'data' => [
+                            'id' => $productData['id'],
+                            'title' => $productData['name'],
+                            'price' => $productData['price'],
+                            'carouselData' => $productData['banner'] ? explode(',', $productData['banner']) : [],
+                            'detailData' => $productData['describe'] ? explode(',', $productData['describe']) : []
+                        ]
+                    ];
+                    if($isMember && $priceData){
+                        $this->data['data']['isMember'] =  true;
+                        $this->data['data']['memberPrice'] = $priceData['member_price'];
+                        $this->data['data']['memberName'] = $priceData['describe'];
+                    }else{
+                        $this->data['data']['isMember'] =  false;
+                        $this->data['data']['memberPrice'] = 0;
+                        $this->data['data']['memberName'] = '';
+                    }
                 }
             }
         }
@@ -145,46 +172,56 @@ class ProductController extends Controller
         if($productData){
             $productArray =  explode(',', $productData);
             if($productArray){
-                $query = Product::find();
-
-                // 会员查会员价格
-                $isMember = $this->userInfo['is_member'] ? true : false;
-                if($isMember){
-                    $memberId = $this->userInfo['member_id'];
-                    $query = $query
-                        ->select([Product::tableName() . '.id', 'name', 'image', 'price', 'member_price', 'describe'])
-                        ->leftJoin(ProductPrice::tableName(), ProductPrice::tableName() . '.product_id=' . Product::tableName() . '.id and ' . ProductPrice::tableName() . '.member_id=' . $memberId);
-                }else{
-                    $query = $query->select(['id', 'name', 'image', 'price']);
-                }
-                $list = $query->where([Product::tableName() . '.id' => $productArray, 'status' => Product::NORMAL_STATUS])
-                    ->asArray()
-                    ->all();
-
-                $data = [];
-                foreach ($list as $key => $val){
-                    $data[$val['id']] = [
-                        'id' => $val['id'],
-                        'title' => $val['name'],
-                        'imgUrl' => $val['image']
-                    ];
+                $user = User::findOne($this->userId);
+                if($user){
+                    $query = Product::find();
+                    $selectData  = [Product::tableName() . '.id', 'name', 'image',  'price'];
+                    // 会员查会员价格
+                    $isMember = $user->is_member ? true : false;
                     if($isMember){
-                        $data[$val['id']]['price'] = $val['member_price'] ? $val['member_price'] : $val['price'];
-                        $data[$val['id']]['isMember'] =  !is_null($val['member_price']);
-                        $data[$val['id']]['memberName'] = $val['describe'] ? $val['describe'] : '';
-                    }else{
-                        $data[$val['id']]['price'] = $val['price'];
-                        $data[$val['id']]['isMember'] =  false;
-                        $data[$val['id']]['memberName'] = '';
+                        $selectData = array_merge($selectData, ['member_price', ProductPrice::tableName() . '.describe']) ;
+                        $query = $query->leftJoin(ProductPrice::tableName(), ProductPrice::tableName() . '.product_id=' . Product::tableName() . '.id and ' . ProductPrice::tableName() . '.member_id=' . $user->member_id);
                     }
-                }
+                    // 支持余额价格
+                    $isBalance = $user->is_balance && ($user->balance_expire_time == 0 || $user->balance_expire_time > time()) ? true : false;
+                    if($isBalance){
+                        $selectData = array_merge($selectData, ['balance_price', ProductBalancePrice::tableName() . '.describe as balance_describe']) ;
+                        $query = $query->leftJoin(ProductBalancePrice::tableName(), ProductBalancePrice::tableName() . '.product_id=' . Product::tableName() . '.id and ' . ProductBalancePrice::tableName() . '.balance_id=' . $user->balance_id);
+                    }
+                    // 上架产品
+                    $list = $query->select($selectData)
+                        ->where([Product::tableName() . '.id' => $productArray, 'status' => Product::NORMAL_STATUS])
+                        ->asArray()
+                        ->all();
 
-                if($data){
-                    $this->data = [
-                        'code' => self::API_CODE_SUCCESS,
-                        'msg' => self::API_CODE_SUCCESS_MSG,
-                        'data' => $data
-                    ];
+                    foreach($list as $key => $val){
+                        $data[$val['id']] = [
+                            'id' => $val['id'],
+                            'title' => $val['name'],
+                            'imgUrl' => $val['image']
+                        ];
+                        if($isMember && $val['member_price']){
+                            $data[$val['id']]['price'] = $val['member_price'];
+                            $data[$val['id']]['isMember'] =  true;
+                            $data[$val['id']]['memberName'] = $val['describe'];
+                        }else if($isBalance && $val['balance_price']){
+                            $data[$val['id']]['price'] = $val['balance_price'];
+                            $data[$val['id']]['isMember'] =  true;
+                            $data[$val['id']]['memberName'] = $val['balance_describe'];
+                        }else{
+                            $data[$val['id']]['price'] = $val['price'];
+                            $data[$val['id']]['isMember'] =  false;
+                            $data[$val['id']]['memberName'] = '';
+                        }
+                    }
+
+                    if($data){
+                        $this->data = [
+                            'code' => self::API_CODE_SUCCESS,
+                            'msg' => self::API_CODE_SUCCESS_MSG,
+                            'data' => $data
+                        ];
+                    }
                 }
             }
         }

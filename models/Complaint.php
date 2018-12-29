@@ -28,9 +28,8 @@ class Complaint extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['user_id', 'describe'], 'required'],
             [['user_id', 'created_at'], 'integer'],
-            [['describe'], 'string', 'min' => 20, 'max' => 500],
+            [['describe'], 'string', 'max' => 500],
         ];
     }
 
@@ -45,16 +44,5 @@ class Complaint extends \yii\db\ActiveRecord
             'describe' => '描述',
             'created_at' => '创建时间',
         ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        if($this->isNewRecord){
-            $this->created_at = time();
-        }
-        return parent::behaviors();
     }
 }

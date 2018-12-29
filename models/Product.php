@@ -10,8 +10,11 @@ use Yii;
  * @property integer $id
  * @property string $name
  * @property string $image
+ * @property string $label
  * @property string $price
  * @property integer $status
+ * @property integer $balance_deduct
+ * @property integer $sort
  * @property integer $created_at
  */
 class Product extends \yii\db\ActiveRecord
@@ -39,10 +42,10 @@ class Product extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['image'], 'required'],
             [['price'], 'number'],
-            [['status', 'created_at'], 'integer'],
-            [['name', 'image'], 'string', 'max' => 80],
+            [['status', 'balance_deduct', 'sort', 'created_at'], 'integer'],
+            [['name', 'label'], 'string', 'max' => 80],
+            [['image'], 'string', 'max' => 120],
         ];
     }
 
@@ -55,8 +58,11 @@ class Product extends \yii\db\ActiveRecord
             'id' => '产品ID',
             'name' => '名称',
             'image' => '图片',
+            'label' => '标签',
             'price' => '价格',
             'status' => '状态（1:上架 2:下价）',
+            'balance_deduct' => '支持余额',
+            'sort' => '排序',
             'created_at' => '创建时间',
         ];
     }

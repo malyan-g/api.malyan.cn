@@ -24,7 +24,7 @@ class Controller extends \yii\web\Controller
 
     public $enableCsrfValidation = false;
     public $data;
-    public $userInfo;
+    public $userId;
     public $permissions = [
         'index/index',
         'user/login',
@@ -54,7 +54,7 @@ class Controller extends \yii\web\Controller
                 $cacheUserLoginKey = self::CACHE_USER_LOGIN_KEY . $id;
                 $userInfo = Yii::$app->cache->get($cacheUserLoginKey);
                 if($userInfo){
-                    $this->userInfo = $userInfo;
+                    $this->userId = $userInfo['id'];
                     //Yii::$app->cache->set($cacheUserLoginKey, $userInfo,1800);
                 }else{
                     $this->data['msg'] = '请求超时';

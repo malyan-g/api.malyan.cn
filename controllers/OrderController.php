@@ -9,6 +9,7 @@
 namespace app\controllers;
 
 use YII;
+use app\models\User;
 use app\models\Order;
 use app\models\Product;
 use yii\db\ActiveQuery;
@@ -16,7 +17,7 @@ use yii\helpers\ArrayHelper;
 use app\models\OrderAttach;
 use app\models\ProductPrice;
 use app\models\OrderAddress;
-use yii\data\ActiveDataProvider;
+use app\models\ProductBalancePrice;
 
 /**
  * 订单接口
@@ -38,7 +39,7 @@ class OrderController extends Controller
             $this->data['code'] = self::API_CODE_SUCCESS;
             $query = Order::find()
                 ->select(['id', 'order_number', 'total_amount', 'total_number', 'status'])
-                ->where(['user_id' => $this->userInfo['id']]);
+                ->where(['user_id' => $this->userId]);
 
             // 订单状态
             if($status){
@@ -118,7 +119,7 @@ class OrderController extends Controller
                     }]);
                 }])
                 ->innerJoinWith('address')
-                ->where([Order::tableName() . '.id' => $id, 'user_id' => $this->userInfo['id']])
+                ->where([Order::tableName() . '.id' => $id, 'user_id' => $this->userId])
                 ->asArray()
                 ->one();
 
@@ -186,74 +187,83 @@ class OrderController extends Controller
             }
             // 获取产品ID数据
             $productArray =  array_values(array_column($_orderData, 'id'));
-            $query = Product::find();
-            // 会员查会员价格
-            $isMember = $this->userInfo['is_member'] ? true : false;
-            if($isMember){
-                $memberId = $this->userInfo['member_id'];
-                $query = $query
-                    ->select([Product::tableName() . '.id',  'price', 'member_price'])
-                    ->leftJoin(ProductPrice::tableName(), ProductPrice::tableName() . '.product_id=' . Product::tableName() . '.id and ' . ProductPrice::tableName() . '.member_id=' . $memberId);
-            }else{
-                $query = $query->select(['id', 'price']);
-            }
-            $productData = $query
-                ->where([Product::tableName() . '.id' => $productArray, 'status' => Product::NORMAL_STATUS])
-                ->indexBy('id')
-                ->asArray()
-                ->all();
+            $user = User::findOne($this->userId);
+            if($user && $productArray){
+                $query = Product::find();
+                $selectData = [Product::tableName() . '.id',  'price'];
+                //  会员查会员价格
+                if($user->is_member){
+                    $selectData = array_merge($selectData, ['member_price']) ;
+                    $query = $query->leftJoin(ProductPrice::tableName(), ProductPrice::tableName() . '.product_id=' . Product::tableName() . '.id and ' . ProductPrice::tableName() . '.member_id=' . $user->member_id);
+                }
+                // 支持余额价格
+                $isBalance = $user->is_balance && ($user->balance_expire_time == 0 || $user->balance_expire_time > time()) ? true : false;
+                if($isBalance) {
+                    $selectData = array_merge($selectData, ['balance_price']);
+                    $query = $query->leftJoin(ProductBalancePrice::tableName(), ProductBalancePrice::tableName() . '.product_id=' . Product::tableName() . '.id and ' . ProductBalancePrice::tableName() . '.balance_id=' . $user->balance_id);
+                }
 
-            if(count($productArray) === count($productData)){
-                $order = new Order();
-                $orderAddress= new OrderAddress();
-                $order->user_id = $this->userInfo['id'];
-                if($order->validate() && $orderAddress->load(['data' => $addressData], 'data') && $orderAddress->validate()){
-                    $orderAttach = new OrderAttach();
-                    $trans = Yii::$app->db->beginTransaction();
-                    try {
-                        $order->save();
-                        $orderAddress->order_id = $order->id;
-                        $orderAddress->save();
-                        // 购买产品处理
-                        foreach ($productArray as $val){
-                            $_orderAttach = clone  $orderAttach;
-                            $_orderAttach->order_id = $order->id;
-                            $_orderAttach->product_id = $val;
-                            $_orderAttach->buy_number = $orderData[$val]['count'];
-                            // 是否是会员价格
-                            if($isMember){
-                                $_orderAttach->buy_price = $productData[$val]['member_price'] ?  $productData[$val]['member_price'] :  $productData[$val]['price'];
-                            }else{
-                                $_orderAttach->buy_price =  $productData[$val]['price'];
-                            }
-                            // 验证失败直接数据回滚
-                            if($_orderAttach->validate()){
-                                $_orderAttach->save();
-                            }else{
-                                $trans->rollBack();
-                                return $this->data;
+                $productData = $query->select($selectData)
+                    ->where([Product::tableName() . '.id' => $productArray, 'status' => Product::NORMAL_STATUS])
+                    ->indexBy('id')
+                    ->asArray()
+                    ->all();
+
+                if(count($productArray) === count($productData)) {
+                    $order = new Order();
+                    $orderAddress = new OrderAddress();
+                    $order->user_id = $this->userId;
+                    if ($order->validate() && $orderAddress->load(['data' => $addressData], 'data') && $orderAddress->validate()) {
+                        $orderAttach = new OrderAttach();
+                        $trans = Yii::$app->db->beginTransaction();
+                        try {
+                            $order->save();
+                            $orderAddress->order_id = $order->id;
+                            $orderAddress->save();
+                            // 购买产品处理
+                            foreach ($productArray as $val) {
+                                $_orderAttach = clone  $orderAttach;
+                                $_orderAttach->order_id = $order->id;
+                                $_orderAttach->product_id = $val;
+                                $_orderAttach->buy_number = $orderData[$val]['count'];
+                                // 是否是会员价格
+                                if ($user->is_member && $productData[$val]['member_price']) {
+                                    $_orderAttach->buy_price = $productData[$val]['member_price'];
+                                }else if ($isBalance && $productData[$val]['balance_price']) {
+                                    $_orderAttach->buy_price = $productData[$val]['balance_price'];
+                                }else {
+                                    $_orderAttach->buy_price = $productData[$val]['price'];
+                                }
+
+                                // 验证失败直接数据回滚
+                                if ($_orderAttach->validate()) {
+                                    $_orderAttach->save();
+                                } else {
+                                    $trans->rollBack();
+                                    return $this->data;
+                                }
+
+                                // 计算购买总价和购买总数量
+                                $order->total_number += $_orderAttach->buy_number;
+                                $order->total_amount += $_orderAttach->buy_price * $_orderAttach->buy_number;
                             }
 
-                            // 计算购买总价和购买总数量
-                            $order->total_number += $_orderAttach->buy_number;
-                            $order->total_amount += $_orderAttach->buy_price * $_orderAttach->buy_number;
+                            $order->save();
+                            $trans->commit();
+                            $this->data = [
+                                'code' => self::API_CODE_SUCCESS,
+                                'msg' => self::API_CODE_SUCCESS_MSG,
+                                'data' => [
+                                    'id' => $order->id,
+                                    'timeStamp' => '',
+                                    'nonceStr' => '',
+                                    'package' => '',
+                                    'paySign' => ''
+                                ]
+                            ];
+                        } catch (\Exception $e) {
+                            $trans->rollBack();
                         }
-
-                        $order->save();
-                        $trans->commit();
-                        $this->data = [
-                            'code' => self::API_CODE_SUCCESS,
-                            'msg' => self::API_CODE_SUCCESS_MSG,
-                            'data' => [
-                                'id' => $order->id,
-                                'timeStamp' => '',
-                                'nonceStr' => '',
-                                'package' => '',
-                                'paySign' => ''
-                            ]
-                        ];
-                    } catch (\Exception $e) {
-                        $trans->rollBack();
                     }
                 }
             }
