@@ -87,6 +87,10 @@ class UserController extends Controller
         return $this->data;
     }
 
+    /**
+     * 我的团队
+     * @return array
+     */
     public function actionGroup()
     {
          $inviteData =   MemberInvite::find()
@@ -103,8 +107,9 @@ class UserController extends Controller
              ->orderBy([MemberInvite::tableName() . '.created_at' => SORT_ASC])
              ->asArray()
              ->all();
+
+        $data = [];
          if($inviteData){
-             $data = [];
              foreach ($inviteData as $key => $val){
                  $data[$key] = [
                      'realname' => $val['user']['realname'],
@@ -121,12 +126,12 @@ class UserController extends Controller
                      }
                  }
              }
-             $this->data = [
-                 'code' => self::API_CODE_SUCCESS,
-                 'msg' => self::API_CODE_SUCCESS_MSG,
-                 'data' => $data
-             ];
          }
+        $this->data = [
+            'code' => self::API_CODE_SUCCESS,
+            'msg' => self::API_CODE_SUCCESS_MSG,
+            'data' => $data
+        ];
         return $this->data;
     }
 
