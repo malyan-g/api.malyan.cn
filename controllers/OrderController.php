@@ -216,7 +216,7 @@ class OrderController extends Controller
                     if ($order->validate() && $orderAddress->load(['data' => $addressData], 'data') && $orderAddress->validate()) {
                         $orderAttach = new OrderAttach();
                         $trans = Yii::$app->db->beginTransaction();
-                        //try {
+                        try {
                             $order->save();
                             $orderAddress->order_id = $order->id;
                             $orderAddress->save();
@@ -227,7 +227,7 @@ class OrderController extends Controller
                                 $_orderAttach->order_id = $order->id;
                                 $_orderAttach->product_id = $val;
                                 $_orderAttach->buy_number = $orderData[$val]['count'];
-                                $_orderAttach->is_balance = $orderData[$val]['is_balance'];
+                                $_orderAttach->is_balance = $productData[$val]['is_balance'];
                                 // 是否是会员价格
                                 if ($user->is_member && $productData[$val]['member_price']) {
                                     $_orderAttach->buy_price = $productData[$val]['member_price'];
@@ -298,9 +298,9 @@ class OrderController extends Controller
                                 'msg' => self::API_CODE_SUCCESS_MSG,
                                 'data' => $data
                             ];
-                        //} catch (\Exception $e) {
+                        } catch (\Exception $e) {
                             $trans->rollBack();
-                       // }
+                        }
                     }
                 }
             }
