@@ -280,7 +280,7 @@ class OrderController extends Controller
         $requestData = Yii::$app->request->post();
         $id = (int) ArrayHelper::getValue($requestData, 'id');
         if($id > 0){
-            $model = Order::findOne(['id' => $id, 'user_id' => $this->userInfo['id'], 'status' => Order::ORDER_STATUS_NOT_PAY]);
+            $model = Order::findOne(['id' => $id, 'user_id' => $this->userId, 'status' => Order::ORDER_STATUS_NOT_PAY]);
             if($model){
                 $this->data = [
                     'code' => self::API_CODE_SUCCESS,
@@ -307,7 +307,7 @@ class OrderController extends Controller
         $requestData = Yii::$app->request->post();
         $id = (int) ArrayHelper::getValue($requestData, 'id');
         if($id > 0){
-            $model = Order::findOne(['id' => $id, 'user_id' => $this->userInfo['id'], 'status' => Order::ORDER_STATUS_NOT_PAY]);
+            $model = Order::findOne(['id' => $id, 'user_id' => $this->userId, 'status' => Order::ORDER_STATUS_NOT_PAY]);
             $model->status = Order::ORDER_STATUS_HAS_CANCEL;
             $model->complete_time = time();
             if ($model->save()) {
@@ -331,7 +331,7 @@ class OrderController extends Controller
         $requestData = Yii::$app->request->post();
         $id = (int) ArrayHelper::getValue($requestData, 'id');
         if($id > 0) {
-            $model = Order::findOne(['id' => $id, 'user_id' => $this->userInfo['id'], 'status' => Order::ORDER_STATUS_STAY_RECEIVE_GOODS]);
+            $model = Order::findOne(['id' => $id, 'user_id' => $this->userId, 'status' => Order::ORDER_STATUS_STAY_RECEIVE_GOODS]);
             if ($model) {
                 $model->status = Order::ORDER_STATUS_HAS_COMPLETE;
                 $model->complete_time = time();

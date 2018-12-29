@@ -67,18 +67,21 @@ class UserController extends Controller
      */
     public function actionIndex()
     {
-        $memberModel = Member::findOne(['id' =>  $this->userInfo['member_id']]);
-        $data = [
-            'userId' => $this->userInfo['id'],
-            'memberId' => $this->userInfo['member_id'],
-            'memberName' => $memberModel ? $memberModel->name : '普通会员',
-            'percent' => 38
-        ];
-        $this->data = [
-            'code' => self::API_CODE_SUCCESS,
-            'msg' => self::API_CODE_SUCCESS_MSG,
-            'data' => $data
-        ];
+        $user = User::findOne($this->userId);
+        if($user){
+            $memberModel = Member::findOne($user->member_id);
+            $data = [
+              'userId' => $this->userId,
+              'memberId' => $user->member_id,
+              'memberName' => $memberModel ? $memberModel->name : '普通会员',
+              'percent' => 38
+            ];
+            $this->data = [
+                'code' => self::API_CODE_SUCCESS,
+                'msg' => self::API_CODE_SUCCESS_MSG,
+                'data' => $data
+            ];
+        }
         return $this->data;
     }
 
@@ -90,14 +93,14 @@ class UserController extends Controller
     {
         $todayTime = strtotime(date("Y-m-d"), time());
         $count = Complaint::find()
-            ->where(['user_id' => $this->userInfo['id']])
+            ->where(['user_id' => $this->userId])
             ->andWhere(['between', 'created_at', $todayTime, $todayTime + 24*3600])
             ->count();
         if($count < 5){
             $describe = Yii::$app->request->post('describe');
             $model = new Complaint();
             $data = [
-                'user_id' => $this->userInfo['id'],
+                'user_id' => $this->userId,
                 'describe' => $describe
             ];
             if($model->load(['data' => $data], 'data') && $model->validate()){
@@ -134,7 +137,7 @@ class UserController extends Controller
         $templateProcessor->setValue('id_card', 612727199111050057);
         $templateProcessor->setValue('issue_date', 20181225);
         $templateProcessor->setValue('valid_date', 20191225);
-        $wordName = $path . md5('certificate-' . $this->userInfo['id'] ). '.docx';
+        $wordName = $path . md5('certificate-' . $this->userId ). '.docx';
         $templateProcessor->saveAs($wordName);
         // 上传七牛
         //QiniuApiHelper::upload($wordName);
