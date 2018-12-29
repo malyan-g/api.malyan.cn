@@ -358,6 +358,7 @@ class OrderController extends Controller
                         $user->save();
                     }
                     $model->save();
+                    $trans->commit();
                     $this->data = [
                         'code' => self::API_CODE_SUCCESS,
                         'msg' => self::API_CODE_SUCCESS_MSG
