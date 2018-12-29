@@ -109,7 +109,7 @@ class ProductController extends Controller
             if($user){
                 // 商品详情
                 $productData = Product::find()
-                    ->select(['id', 'name', 'image',  'price', 'balance_deduct', 'banner', 'describe'])
+                    ->select(['id', 'name', 'image',  'price', 'is_balance', 'banner', 'describe'])
                     ->innerJoin(ProductAttach::tableName(), ProductAttach::tableName() . '.product_id=' . Product::tableName() . '.id')
                     ->where([Product::tableName() . '.id' => $id, 'status' => Product::NORMAL_STATUS])
                     ->asArray()
@@ -124,7 +124,7 @@ class ProductController extends Controller
                             ->asArray()
                             ->one();
                         $isMember = true;
-                    }else if($user->is_member ){ // 会员查会员价格
+                    }else if($user->is_member){ // 会员查会员价格
                         $priceData = ProductPrice::find()
                             ->select(['member_price', 'describe'])
                             ->where(['product_id' => $id, 'member_id' => $user->member_id])
