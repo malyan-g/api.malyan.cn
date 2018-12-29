@@ -129,6 +129,8 @@ class OrderController extends Controller
                     'id' => $orderData['id'],
                     'orderNumber' => $orderData['order_number'],
                     'totalAmount' => $orderData['total_amount'],
+                    'cashAmount' => $orderData['cash_amount'],
+                    'balanceAmount' => $orderData['balance_amount'],
                     'totalNumber' => $orderData['total_number'],
                     'status' => $orderData['status'],
                     'statusText' => Order::$statusArray[$orderData['status']],
@@ -345,23 +347,25 @@ class OrderController extends Controller
         $id = (int) ArrayHelper::getValue($requestData, 'id');
         if($id > 0){
             $model = Order::findOne(['id' => $id, 'user_id' => $this->userId, 'status' => Order::ORDER_STATUS_NOT_PAY]);
-            $model->status = Order::ORDER_STATUS_HAS_CANCEL;
-            $model->complete_time = time();
-            $trans = Yii::$app->db->beginTransaction();
-            try {
-                if($model->balance_amount){
-                    $user = User::findOne($this->userId);
-                    $user->balance_amount = $user->balance_amount  + $model->balance_amount;
-                    $user->save();
+            if($model){
+                $model->status = Order::ORDER_STATUS_HAS_CANCEL;
+                $model->complete_time = time();
+                $trans = Yii::$app->db->beginTransaction();
+                try {
+                    if($model->balance_amount){
+                        $user = User::findOne($this->userId);
+                        $user->balance_amount = $user->balance_amount  + $model->balance_amount;
+                        $user->save();
+                    }
+                    $model->save();
+                    $this->data = [
+                        'code' => self::API_CODE_SUCCESS,
+                        'msg' => self::API_CODE_SUCCESS_MSG
+                    ];
+                } catch (\Exception $e) {
+                    $trans->rollBack();
+                    $this->data['msg'] = '服务器异常，请联系管理员';
                 }
-                $model->save();
-                $this->data = [
-                    'code' => self::API_CODE_SUCCESS,
-                    'msg' => self::API_CODE_SUCCESS_MSG
-                ];
-            } catch (\Exception $e) {
-                $trans->rollBack();
-                $this->data['msg'] = '服务器异常，请联系管理员';
             }
         }
         return $this->data;
