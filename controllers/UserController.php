@@ -168,13 +168,13 @@ class UserController extends Controller
         }
 
         // 商品销售量
-        $productData = OrderAttach::find()
-            ->select(['product_id as productId', 'sum(buy_number) as buyNumber', 'name', 'image'])
-            ->innerJoin(Order::tableName(),Order::tableName() .'.id=order_id and ' . Order::tableName() . '.status=' . Order::ORDER_STATUS_HAS_COMPLETE)
-            ->innerJoin(Product::tableName(), Product::tableName() . '.id=product_id and ' . Product::tableName()  . '.is_balance=0')
-            ->where(['user_id' => $this->userId])
-            ->groupBy('productId')
-            ->orderBy(['buyNumber' => SORT_DESC])
+        $productData = Product::find()
+            ->select([Product::tableName() . '.id', 'sum(buy_number) as buyNumber', 'name', 'image'])
+            ->innerJoin(OrderAttach::tableName(), OrderAttach::tableName() . '.product_id=' . Product::tableName() . '.id')
+            ->innerJoin(Order::tableName(),Order::tableName() .'.id=order_id and user_id=' . $this->userId . ' and '. Order::tableName() . '.status=' . Order::ORDER_STATUS_HAS_COMPLETE)
+            ->where([Product::tableName() . '.is_balance' => 0])
+            ->groupBy(Product::tableName() . '.id')
+            ->orderBy(['buyNumber' => SORT_DESC, 'price' => SORT_DESC])
             ->asArray()
             ->all();
 
