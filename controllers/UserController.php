@@ -11,6 +11,9 @@ namespace app\controllers;
 use app\models\Complaint;
 use app\models\Member;
 use app\models\MemberInvite;
+use app\models\Order;
+use app\models\OrderAttach;
+use app\models\Product;
 use YII;
 use app\models\User;
 use app\components\helpers\ScHelper;
@@ -76,7 +79,9 @@ class UserController extends Controller
               'userId' => $this->userId,
               'memberId' => $user->member_id,
               'memberName' => $memberModel ? $memberModel->name : '普通会员',
-              'percent' => 38
+              'percent' => 38,
+              'certificateUrl' => 'http://img.malyan.cn/WechatIMG34.png',
+              'contractUrl' => 'http://img.malyan.cn/WechatIMG34.png'
             ];
             $this->data = [
                 'code' => self::API_CODE_SUCCESS,
@@ -113,6 +118,7 @@ class UserController extends Controller
              foreach ($inviteData as $key => $val){
                  $data[$key] = [
                      'realname' => $val['user']['realname'],
+                     'memberId' => $val['user']['member_id'],
                      'memberName' => $val['user']['member']['name'],
                  ];
 
@@ -121,6 +127,7 @@ class UserController extends Controller
                      foreach ($val['invite'] as $v){
                          $data[$key]['item'][] = [
                              'realname' => $v['user2']['realname'],
+                             'memberId' => $v['user2']['member_id'],
                              'memberName' => $v['user2']['member2']['name'],
                          ];
                      }
@@ -141,7 +148,43 @@ class UserController extends Controller
      */
     public function actionAchievement()
     {
+        // 邀请代理商量
+        $inviteData = MemberInvite::find()
+            ->select(['member_id',' count(member_id) member_number'])
+            ->innerJoin(User::tableName(), User::tableName() . '.id=user_id')
+            ->where(['invite_user_id' => $this->userId])
+            ->groupBy('member_id')
+            ->indexBy('member_id')
+            ->asArray()
+            ->all();
 
+        $memberData = Member::find()
+            ->select(['id', 'name'])
+            ->asArray()
+            ->all();
+
+        foreach ($memberData as $key => $val) {
+            $memberData[$key]['memberNumber'] = isset($inviteData[$val['id']]) ? $inviteData[$val['id']]['member_number'] : 0;
+        }
+
+        // 商品销售量
+        $productData = OrderAttach::find()
+            ->select(['product_id as productId', 'sum(buy_number) as buyNumber', 'name', 'image'])
+            ->innerJoin(Order::tableName(),Order::tableName() .'.id=order_id and ' . Order::tableName() . '.status=' . Order::ORDER_STATUS_HAS_COMPLETE)
+            ->innerJoin(Product::tableName(), Product::tableName() . '.id=product_id and ' . Product::tableName()  . '.is_balance=0')
+            ->where(['user_id' => $this->userId])
+            ->groupBy('productId')
+            ->orderBy(['buyNumber' => SORT_DESC])
+            ->asArray()
+            ->all();
+
+        $this->data = [
+            'code' => self::API_CODE_SUCCESS,
+            'msg' => self::API_CODE_SUCCESS_MSG,
+            'memberData' => $memberData ? $memberData : [],
+            'productData' => $productData ? $productData : []
+        ];
+        return $this->data;
     }
 
     /**
