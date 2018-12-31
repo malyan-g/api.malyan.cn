@@ -278,6 +278,8 @@ class UserController extends Controller
                                     'code' => self::API_CODE_SUCCESS,
                                     'msg' => self::API_CODE_SUCCESS_MSG
                                 ];
+                            }else{
+                                QiniuApiHelper::delete($result['key']);
                             }
                         }
                     }
