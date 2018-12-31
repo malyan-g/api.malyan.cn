@@ -19,8 +19,11 @@ use yii\helpers\ArrayHelper;
  */
 class ImageHelper extends Object
 {
-    public static function word2pdf($wordPath, $path)
+    public static function word2pdf($wordPath, $pdfPath,$path)
     {
+        if(file_exists($pdfPath)){
+            unlink($pdfPath);
+        }
         $cmd = 'export HOME=/tmp && libreoffice --headless --convert-to pdf:writer_pdf_Export ' . $wordPath . ' --outdir ' . $path;
         var_dump(system($cmd));
     }

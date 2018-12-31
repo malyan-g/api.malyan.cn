@@ -243,7 +243,8 @@ class UserController extends Controller
         $wordName = $path . md5('certificate-' . $this->userId ). '.docx';
         $templateProcessor->saveAs($wordName);
 
-        ImageHelper::word2pdf($wordName, $path);
+        $pdfName = $path . md5('certificate-' . $this->userId ). '.pdf';
+        ImageHelper::word2pdf($wordName, $pdfName, $path);
         // 上传七牛
         //QiniuApiHelper::upload($wordName);
         // 删除本地文件
