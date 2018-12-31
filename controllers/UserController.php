@@ -246,9 +246,12 @@ class UserController extends Controller
         $templateProcessor->setValue('valid_date', 20191225);
         $templateProcessor->saveAs($wordName);
         ImageHelper::word2pdf($wordName, $pdfName, $path);
-        ImageHelper::pdf2png($pdfName,$pngName);
-        // 上传七牛
-        QiniuApiHelper::upload($pngName);
+        $result = ImageHelper::pdf2png($pdfName,$pngName);
+        var_dump($result);
+        if($result){
+            // 上传七牛
+            QiniuApiHelper::upload($pngName);
+        }
         // 删除本地文件
         unlink($wordName);
         unlink($pdfName);
