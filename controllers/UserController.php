@@ -262,16 +262,16 @@ class UserController extends Controller
                     if($resultPng){
                         // 上传七牛
                         $pngName = md5(time() . $this->userId) . '.png';
+                        $model = UserImage::findOne(['user_id' => $this->userId]);
+                        if($model){
+                            QiniuApiHelper::delete($model->certificate_url);
+                        }else{
+                            $model = new UserImage();
+                            $model->user_id = $this->userId;
+                        }
                         $result = QiniuApiHelper::upload($tmpName . '.png', $pngName);
                         unlink($tmpName . '.png');
                         if(isset($result['key'])){
-                            $model = UserImage::findOne(['user_id' => $this->userId]);
-                            if($model){
-                                QiniuApiHelper::delete($model->certificate_url);
-                            }else{
-                                $model = new UserImage();
-                                $model->user_id = $this->userId;
-                            }
                             $model->certificate_url = $pngName;
                             if($model->save()){
                                 $this->data = [
