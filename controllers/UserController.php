@@ -15,6 +15,7 @@ use app\models\MemberInvite;
 use app\models\Order;
 use app\models\OrderAttach;
 use app\models\Product;
+use app\models\UserImage;
 use YII;
 use app\models\User;
 use app\components\helpers\ScHelper;
@@ -248,19 +249,28 @@ class UserController extends Controller
             unlink($tmpName . '.docx'); // 删除本地文件
             if($resultPdf){
                 // pdf转为图片
-                $pngName = md5('certificate-' . $this->userId) . '.png';
-                $resultPng = ImageHelper::pdf2png($tmpName . '.pdf', $path . $pngName);
+                $resultPng = ImageHelper::pdf2png($tmpName . '.pdf', $tmpName . '.png');
                 unlink($tmpName . '.pdf');
                 if($resultPng){
                     // 上传七牛
-                    $result = QiniuApiHelper::upload($path . $pngName, $pngName);
-                    unlink($path . $pngName);
-                    var_dump($result);die;
+                    $pngName = md5(time() . $this->userId) . '.png';
+                    $result = QiniuApiHelper::upload($tmpName . '.png', $pngName);
+                    unlink($tmpName . '.png');
                     if(isset($result['key'])){
-                        $this->data = [
-                            'code' => self::API_CODE_SUCCESS,
-                            'msg' => self::API_CODE_SUCCESS_MSG
-                        ];
+                        $model = UserImage::findOne(['user_id' => $this->userId]);
+                        if($model){
+                            QiniuApiHelper::delete($model->certificate_url);
+                        }else{
+                            $model = new UserImage();
+                            $model->user_id = $this->userId;
+                        }
+                        $model->certificate_url = $result['key'];
+                        if($model->save()){
+                            $this->data = [
+                                'code' => self::API_CODE_SUCCESS,
+                                'msg' => self::API_CODE_SUCCESS_MSG
+                            ];
+                        }
                     }
                 }
             }

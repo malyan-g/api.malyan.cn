@@ -53,8 +53,7 @@ class QiniuApiHelper extends Object
     public static function upload($updateFile , $filename)
     {
         $qiniu = new Qiniu(self::ACCESS_KEY, self::SECRET_KEY,self::DOMAIN, self::BUCKET, self::ZONE);
-        $updateName = MD5($filename) . '.' . substr($filename, strrpos($filename, '.')+1);
-        return $qiniu->uploadFile($updateFile, $updateName);
+        return $qiniu->uploadFile($updateFile, $filename);
     }
 
     /**
@@ -65,7 +64,6 @@ class QiniuApiHelper extends Object
     public static function delete($filename)
     {
         $qiniu = new Qiniu(self::ACCESS_KEY, self::SECRET_KEY,self::DOMAIN, self::BUCKET, self::ZONE);
-        $updateName = MD5($filename) . '.' . substr($filename, strrpos($filename, '.')+1);
-        return $qiniu->delete($updateName);
+        return $qiniu->delete($filename);
     }
 }
