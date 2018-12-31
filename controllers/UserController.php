@@ -273,14 +273,13 @@ class UserController extends Controller
                                 $model->user_id = $this->userId;
                             }
                             $model->certificate_url = $pngName;
-                            if($model->save(false)){
+                            if($model->save()){
                                 $this->data = [
                                     'code' => self::API_CODE_SUCCESS,
                                     'msg' => self::API_CODE_SUCCESS_MSG
                                 ];
-                            }else{
-                                QiniuApiHelper::delete($pngName);
                             }
+                            $this->data['data'] = $result;
                         }
                     }
                 }
