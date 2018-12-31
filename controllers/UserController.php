@@ -229,7 +229,6 @@ class UserController extends Controller
      */
     public function actionCertificate()
     {
-        QiniuApiHelper::delete('certificate-' . $this->userId . '.png');die;
         try{
             // word路径
             $path = Yii::getAlias('@webroot') . '/files/';
