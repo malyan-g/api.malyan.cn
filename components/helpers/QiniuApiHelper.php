@@ -46,6 +46,7 @@ class QiniuApiHelper extends Object
     const ZONE= 'east_china';
 
     /**
+     * @param $updateFile
      * @param $filename
      * @return array|mixed
      * @throws \Exception
