@@ -66,6 +66,6 @@ class QiniuApiHelper extends Object
     {
         $qiniu = new Qiniu(self::ACCESS_KEY, self::SECRET_KEY,self::DOMAIN, self::BUCKET, self::ZONE);
         $updateName = MD5($filename) . '.' . substr($filename, strrpos($filename, '.')+1);
-        $qiniu->delete($updateName);
+        return $qiniu->delete($updateName);
     }
 }

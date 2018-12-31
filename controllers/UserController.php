@@ -251,9 +251,12 @@ class UserController extends Controller
         unlink($tmpName . '.pdf');
         if($result){
             // 上传七牛
+            QiniuApiHelper::delete($pngName);
             $result = QiniuApiHelper::upload($pngName);
-            var_dump($result);
             unlink($pngName);
+            if(isset($result['key'])){
+                return $result['key'];
+            }
         }
 
 
