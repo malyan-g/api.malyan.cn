@@ -230,52 +230,61 @@ class UserController extends Controller
      */
     public function actionCertificate()
     {
-       // try{
-            // word路径
-            $path = Yii::getAlias('@webroot') . '/files/';
-            $tmpName = $path. 'tmp-certificate';
-            // 替换模板中的变量并保存
-            $templateProcessor = new TemplateProcessor($path . 'certificate.docx');
-            $templateProcessor->setValue('certificate_number', 20181225001);
-            $templateProcessor->setValue('name', '马亮');
-            $templateProcessor->setValue('member_name', '金卡');
-            $templateProcessor->setValue('id_card', 612727199111050057);
-            $templateProcessor->setValue('issue_date', 20181225);
-            $templateProcessor->setValue('valid_date', 20191225);
-            $templateProcessor->saveAs($tmpName . '.docx');
-            // word转为pdf
-            $resultPdf = ImageHelper::word2pdf($tmpName . '.docx', $tmpName . '.pdf', $path);
-            // 删除本地文件
-            unlink($tmpName . '.docx'); // 删除本地文件
-            if($resultPdf){
-                // pdf转为图片
-                $resultPng = ImageHelper::pdf2png($tmpName . '.pdf', $tmpName . '.png');
-                unlink($tmpName . '.pdf');
-                if($resultPng){
-                    // 上传七牛
-                    $pngName = md5(time() . $this->userId) . '.png';
-                    $result = QiniuApiHelper::upload($tmpName . '.png', $pngName);
-                    unlink($tmpName . '.png');
-                    if(isset($result['key'])){
-                        $model = UserImage::findOne(['user_id' => $this->userId]);
-                        if($model){
-                            QiniuApiHelper::delete($model->certificate_url);
-                        }else{
-                            $model = new UserImage();
-                            $model->user_id = $this->userId;
-                        }
-                        $model->certificate_url = $result['key'];
-                        if($model->save()){
-                            $this->data = [
-                                'code' => self::API_CODE_SUCCESS,
-                                'msg' => self::API_CODE_SUCCESS_MSG
-                            ];
+        try{
+            $memberData = User::find()
+                ->select(['realname', 'idcard', 'member_time', 'name'])
+                ->innerJoin(Member::tableName(), Member::tableName() . '.id=member_id')
+                ->where([User::tableName() . '.id' => $this->userId])
+                ->asArray()
+                ->one();
+            if($memberData){
+                $issueDate =  date('Y-m-d', $memberData['member_time']);
+                // word路径
+                $path = Yii::getAlias('@webroot') . '/files/';
+                $tmpName = $path. 'tmp-certificate';
+                // 替换模板中的变量并保存
+                $templateProcessor = new TemplateProcessor($path . 'certificate.docx');
+                $templateProcessor->setValue('certificate_number', 20181225001);
+                $templateProcessor->setValue('name', $memberData['realname']);
+                $templateProcessor->setValue('member_name', $memberData['name']);
+                $templateProcessor->setValue('id_card', $memberData['idcard']);
+                $templateProcessor->setValue('issue_date', $issueDate);
+                $templateProcessor->setValue('valid_date', date('Y-m-d', strtotime("+1 year", strtotime($issueDate))));
+                $templateProcessor->saveAs($tmpName . '.docx');
+                // word转为pdf
+                $resultPdf = ImageHelper::word2pdf($tmpName . '.docx', $tmpName . '.pdf', $path);
+                // 删除本地文件
+                unlink($tmpName . '.docx'); // 删除本地文件
+                if($resultPdf){
+                    // pdf转为图片
+                    $resultPng = ImageHelper::pdf2png($tmpName . '.pdf', $tmpName . '.png');
+                    unlink($tmpName . '.pdf');
+                    if($resultPng){
+                        // 上传七牛
+                        $pngName = md5(time() . $this->userId) . '.png';
+                        $result = QiniuApiHelper::upload($tmpName . '.png', $pngName);
+                        unlink($tmpName . '.png');
+                        if(isset($result['key'])){
+                            $model = UserImage::findOne(['user_id' => $this->userId]);
+                            if($model){
+                                QiniuApiHelper::delete($model->certificate_url);
+                            }else{
+                                $model = new UserImage();
+                                $model->user_id = $this->userId;
+                            }
+                            $model->certificate_url = $result['key'];
+                            if($model->save()){
+                                $this->data = [
+                                    'code' => self::API_CODE_SUCCESS,
+                                    'msg' => self::API_CODE_SUCCESS_MSG
+                                ];
+                            }
                         }
                     }
                 }
             }
-      /*  }catch (\Exception $e){
-        }*/
+        }catch (\Exception $e){
+        }
         return $this->data;
     }
 }
