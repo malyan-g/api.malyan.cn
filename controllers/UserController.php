@@ -255,6 +255,7 @@ class UserController extends Controller
                     // 上传七牛
                     $result = QiniuApiHelper::upload($path . $pngName, $pngName);
                     unlink($path . $pngName);
+                    var_dump($result);die;
                     if(isset($result['key'])){
                         $this->data = [
                             'code' => self::API_CODE_SUCCESS,
