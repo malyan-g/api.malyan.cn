@@ -76,14 +76,15 @@ class UserController extends Controller
     {
         $user = User::findOne($this->userId);
         if($user){
-            $memberModel = Member::findOne($user->member_id);
+            $userImage = UserImage::findOne(['user_id' => $user->member_id]);
+            $member = Member::findOne($user->member_id);
             $data = [
               'userId' => $this->userId,
               'memberId' => $user->member_id,
-              'memberName' => $memberModel ? $memberModel->name : '普通会员',
+              'memberName' => $member ? $member->name : '普通会员',
               'percent' => 38,
-              'certificateUrl' => 'http://img.malyan.cn/WechatIMG34.png',
-              'contractUrl' => 'http://img.malyan.cn/WechatIMG34.png'
+              'certificateUrl' => $userImage ? $userImage->certificate_url : '',
+              'contractUrl' =>$userImage ? $userImage->contract_url : ''
             ];
             $this->data = [
                 'code' => self::API_CODE_SUCCESS,
@@ -230,7 +231,7 @@ class UserController extends Controller
      */
     public function actionCertificate()
     {
-        //try{
+        try{
             $memberData = User::find()
                 ->select(['realname', 'idcard', 'member_time', 'name'])
                 ->innerJoin(Member::tableName(), Member::tableName() . '.id=member_id')
@@ -283,8 +284,74 @@ class UserController extends Controller
                     }
                 }
             }
-       /* }catch (\Exception $e){
-        }*/
+        }catch (\Exception $e){
+        }
+        return $this->data;
+    }
+
+    /**
+     * 生成证书
+     * @param $id
+     * @throws \PhpOffice\PhpWord\Exception\CopyFileException
+     * @throws \PhpOffice\PhpWord\Exception\CreateTemporaryFileException
+     */
+    public function actionContract()
+    {
+        try{
+            $memberData = User::find()
+                ->select(['realname', 'idcard', 'member_time', 'name'])
+                ->innerJoin(Member::tableName(), Member::tableName() . '.id=member_id')
+                ->where([User::tableName() . '.id' => $this->userId])
+                ->asArray()
+                ->one();
+            if($memberData){
+                $issueDate =  date('Ymd', $memberData['member_time']);
+                // word路径
+                $path = Yii::getAlias('@webroot') . '/files/';
+                $tmpName = $path. md5(rand(10000,99999));
+                // 替换模板中的变量并保存
+                $templateProcessor = new TemplateProcessor($path . 'certificate.docx');
+                $templateProcessor->setValue('certificate_number', date('Ymd' . rand(1000,9999)));
+                $templateProcessor->setValue('name', $memberData['realname']);
+                $templateProcessor->setValue('member_name', $memberData['name']);
+                $templateProcessor->setValue('id_card', $memberData['idcard']);
+                $templateProcessor->setValue('issue_date', $issueDate);
+                $templateProcessor->setValue('valid_date', date('Ymd', strtotime("+1 year", strtotime($issueDate))));
+                $templateProcessor->saveAs($tmpName . '.docx');
+                // word转为pdf
+                $resultPdf = ImageHelper::word2pdf($tmpName . '.docx', $tmpName . '.pdf', $path);
+                // 删除本地文件
+                unlink($tmpName . '.docx'); // 删除本地文件
+                if($resultPdf){
+                    // pdf转为图片
+                    $resultPng = ImageHelper::pdf2png($tmpName . '.pdf', $tmpName . '.png');
+                    unlink($tmpName . '.pdf');
+                    if($resultPng){
+                        // 上传七牛
+                        $pngName = md5(time() . $this->userId) . '.png';
+                        $result = QiniuApiHelper::upload($tmpName . '.png', $pngName);
+                        unlink($tmpName . '.png');
+                        if(isset($result['key'])){
+                            $model = UserImage::findOne(['user_id' => $this->userId]);
+                            if($model){
+                                QiniuApiHelper::delete($model->contract_url);
+                            }else{
+                                $model = new UserImage();
+                                $model->user_id = $this->userId;
+                            }
+                            $model->contract_url = $pngName;
+                            if($model->save()){
+                                $this->data = [
+                                    'code' => self::API_CODE_SUCCESS,
+                                    'msg' => self::API_CODE_SUCCESS_MSG
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+         }catch (\Exception $e){
+         }
         return $this->data;
     }
 }
