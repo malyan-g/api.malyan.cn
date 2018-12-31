@@ -46,15 +46,15 @@ class QiniuApiHelper extends Object
     const ZONE= 'east_china';
 
     /**
-     * 上传文件
      * @param $filename
+     * @return array|mixed
      * @throws \Exception
      */
     public static function upload($filename)
     {
         $qiniu = new Qiniu(self::ACCESS_KEY, self::SECRET_KEY,self::DOMAIN, self::BUCKET, self::ZONE);
         $updateName = MD5($filename) . '.' . substr($filename, strrpos($filename, '.')+1);
-        $qiniu->uploadFile($filename, $updateName);
+        return $qiniu->uploadFile($filename, $updateName);
     }
 
     /**

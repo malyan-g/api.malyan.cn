@@ -231,29 +231,32 @@ class UserController extends Controller
     {
         // word路径
         $path = Yii::getAlias('@webroot') . '/files/';
-        $name = $path . md5('certificate-' . $this->userId );
-        $wordName = $name. '.docx';
-        $pdfName = $name. '.pdf';
-        $pngName = $name . '.png';
+        $tmpName = $path. 'tmp-certificate';
         // 替换模板中的变量并保存
-        $wordTemplate = $path . 'certificate.docx';
-        $templateProcessor = new TemplateProcessor($wordTemplate);
+        $templateProcessor = new TemplateProcessor($path . 'certificate.docx');
         $templateProcessor->setValue('certificate_number', 20181225001);
         $templateProcessor->setValue('name', '马亮');
         $templateProcessor->setValue('member_name', '金卡');
         $templateProcessor->setValue('id_card', 612727199111050057);
         $templateProcessor->setValue('issue_date', 20181225);
         $templateProcessor->setValue('valid_date', 20191225);
-        $templateProcessor->saveAs($wordName);
-        ImageHelper::word2pdf($wordName, $pdfName, $path);
-        $result = ImageHelper::pdf2png($pdfName,$pngName);
+        $templateProcessor->saveAs($tmpName . '.docx');
+        // word转为pdf
+        ImageHelper::word2pdf($tmpName . '.docx', $tmpName . '.pdf', $path);
+        // 删除本地文件
+        unlink($tmpName . '.docx'); // 删除本地文件
+        // pdf转为图片
+        $pngName = $path . md5('certificate-' . $this->userId) . '.png';
+        $result = ImageHelper::pdf2png($tmpName . '.pdf', $pngName);
+        unlink($tmpName . '.pdf');
         if($result){
             // 上传七牛
-            QiniuApiHelper::upload($pngName);
+            $result = QiniuApiHelper::upload($pngName);
+            var_dump($result);
+            unlink($pngName);
         }
-        // 删除本地文件
-        unlink($wordName);
-        unlink($pdfName);
-        unlink($pngName);
+
+
+
     }
 }
