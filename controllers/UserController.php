@@ -8,6 +8,7 @@
 
 namespace app\controllers;
 
+use app\components\helpers\ImageHelper;
 use app\models\Complaint;
 use app\models\Member;
 use app\models\MemberInvite;
@@ -241,6 +242,8 @@ class UserController extends Controller
         $templateProcessor->setValue('valid_date', 20191225);
         $wordName = $path . md5('certificate-' . $this->userId ). '.docx';
         $templateProcessor->saveAs($wordName);
+
+        ImageHelper::word2pdf($wordName, $path);
         // 上传七牛
         //QiniuApiHelper::upload($wordName);
         // 删除本地文件
