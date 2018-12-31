@@ -243,23 +243,25 @@ class UserController extends Controller
             $templateProcessor->setValue('valid_date', 20191225);
             $templateProcessor->saveAs($tmpName . '.docx');
             // word转为pdf
-            ImageHelper::word2pdf($tmpName . '.docx', $tmpName . '.pdf', $path);
+            $resultPdf = ImageHelper::word2pdf($tmpName . '.docx', $tmpName . '.pdf', $path);
             // 删除本地文件
             unlink($tmpName . '.docx'); // 删除本地文件
-            // pdf转为图片
-            $pngName = md5('certificate-' . $this->userId) . '.png';
-            $result = ImageHelper::pdf2png($tmpName . '.pdf', $path . $pngName);
-            unlink($tmpName . '.pdf');
-            if($result){
-                // 上传七牛
-                QiniuApiHelper::delete($pngName);
-                $result = QiniuApiHelper::upload($path . $pngName);
-                unlink($pngName);
-                if(isset($result['key'])){
-                    $this->data = [
-                        'code' => self::API_CODE_SUCCESS,
-                        'msg' => self::API_CODE_SUCCESS_MSG
-                    ];
+            if($resultPdf){
+                // pdf转为图片
+                $pngName = md5('certificate-' . $this->userId) . '.png';
+                $resultPng = ImageHelper::pdf2png($tmpName . '.pdf', $path . $pngName);
+                unlink($tmpName . '.pdf');
+                if($resultPng){
+                    // 上传七牛
+                    QiniuApiHelper::delete($pngName);
+                    $result = QiniuApiHelper::upload($path . $pngName);
+                    unlink($pngName);
+                    if(isset($result['key'])){
+                        $this->data = [
+                            'code' => self::API_CODE_SUCCESS,
+                            'msg' => self::API_CODE_SUCCESS_MSG
+                        ];
+                    }
                 }
             }
         }catch (\Exception $e){

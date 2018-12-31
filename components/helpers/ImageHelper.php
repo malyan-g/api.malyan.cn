@@ -24,6 +24,7 @@ class ImageHelper extends Object
      * @param $wordPath
      * @param $pdfPath
      * @param $path
+     * @return bool
      */
     public static function word2pdf($wordPath, $pdfPath,$path)
     {
@@ -31,7 +32,15 @@ class ImageHelper extends Object
             unlink($pdfPath);
         }
         $cmd = 'libreoffice --headless --convert-to pdf:writer_pdf_Export ' . $wordPath . ' --outdir ' . $path;
-        system($cmd);
+        try{
+            ob_start();
+            system($cmd);
+            $result = ob_get_contents();
+            ob_clean();
+            ob_end_flush();
+            return $result ? true : false;
+        }catch (\Exception $e){
+        }
     }
 
     /**
