@@ -231,7 +231,7 @@ class UserController extends Controller
      */
     public function actionCertificate()
     {
-        try{
+        //try{
             $memberData = User::find()
                 ->select(['realname', 'idcard', 'member_time', 'name'])
                 ->innerJoin(Member::tableName(), Member::tableName() . '.id=member_id')
@@ -287,8 +287,8 @@ class UserController extends Controller
                     }
                 }
             }
-        }catch (\Exception $e){
-        }
+        /*}catch (\Exception $e){
+        }*/
         return $this->data;
     }
 
