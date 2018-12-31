@@ -229,6 +229,7 @@ class UserController extends Controller
      */
     public function actionCertificate()
     {
+        phpinfo();die;
         // word路径
         $path = Yii::getAlias('@webroot') . '/files/';
         $name = $path . md5('certificate-' . $this->userId );
