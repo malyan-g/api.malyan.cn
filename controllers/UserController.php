@@ -241,6 +241,9 @@ class UserController extends Controller
         $templateProcessor->setValue('issue_date', 20181225);
         $templateProcessor->setValue('valid_date', 20191225);
         $wordName = $path . md5('certificate-' . $this->userId ). '.docx';
+        if(file_exists($wordName)){
+            unlink($wordName);
+        }
         $templateProcessor->saveAs($wordName);
 
         $pdfName = $path . md5('certificate-' . $this->userId ). '.pdf';
