@@ -61,6 +61,7 @@ class ImageHelper extends Object
             return false;
         }
         $im = new \Imagick();
+        $im->BorderImage(new \ImagickPixel("#ffffff") , 8,8);
         $im->setResolution(120,120);
         $im->setCompressionQuality(100);
         if($page==-1) {
