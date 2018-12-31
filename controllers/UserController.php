@@ -241,7 +241,7 @@ class UserController extends Controller
                 $issueDate =  date('Ymd', $memberData['member_time']);
                 // word路径
                 $path = Yii::getAlias('@webroot') . '/files/';
-                $tmpName = $path. 'tmp-certificate';
+                $tmpName = $path. md5(rand(10000,99999));
                 // 替换模板中的变量并保存
                 $templateProcessor = new TemplateProcessor($path . 'certificate.docx');
                 $templateProcessor->setValue('certificate_number', date('Ymd' . rand(1000,9999)));
