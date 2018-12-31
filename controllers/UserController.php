@@ -229,37 +229,41 @@ class UserController extends Controller
      */
     public function actionCertificate()
     {
-        // word路径
-        $path = Yii::getAlias('@webroot') . '/files/';
-        $tmpName = $path. 'tmp-certificate';
-        // 替换模板中的变量并保存
-        $templateProcessor = new TemplateProcessor($path . 'certificate.docx');
-        $templateProcessor->setValue('certificate_number', 20181225001);
-        $templateProcessor->setValue('name', '马亮');
-        $templateProcessor->setValue('member_name', '金卡');
-        $templateProcessor->setValue('id_card', 612727199111050057);
-        $templateProcessor->setValue('issue_date', 20181225);
-        $templateProcessor->setValue('valid_date', 20191225);
-        $templateProcessor->saveAs($tmpName . '.docx');
-        // word转为pdf
-        ImageHelper::word2pdf($tmpName . '.docx', $tmpName . '.pdf', $path);
-        // 删除本地文件
-        unlink($tmpName . '.docx'); // 删除本地文件
-        // pdf转为图片
-        $pngName = $path . md5('certificate-' . $this->userId) . '.png';
-        $result = ImageHelper::pdf2png($tmpName . '.pdf', $pngName);
-        unlink($tmpName . '.pdf');
-        if($result){
-            // 上传七牛
-            QiniuApiHelper::delete($pngName);
-            $result = QiniuApiHelper::upload($pngName);
-            unlink($pngName);
-            if(isset($result['key'])){
-                return $result['key'];
+        try{
+            // word路径
+            $path = Yii::getAlias('@webroot') . '/files/';
+            $tmpName = $path. 'tmp-certificate';
+            // 替换模板中的变量并保存
+            $templateProcessor = new TemplateProcessor($path . 'certificate.docx');
+            $templateProcessor->setValue('certificate_number', 20181225001);
+            $templateProcessor->setValue('name', '马亮');
+            $templateProcessor->setValue('member_name', '金卡');
+            $templateProcessor->setValue('id_card', 612727199111050057);
+            $templateProcessor->setValue('issue_date', 20181225);
+            $templateProcessor->setValue('valid_date', 20191225);
+            $templateProcessor->saveAs($tmpName . '.docx');
+            // word转为pdf
+            ImageHelper::word2pdf($tmpName . '.docx', $tmpName . '.pdf', $path);
+            // 删除本地文件
+            unlink($tmpName . '.docx'); // 删除本地文件
+            // pdf转为图片
+            $pngName = $path . md5('certificate-' . $this->userId) . '.png';
+            $result = ImageHelper::pdf2png($tmpName . '.pdf', $pngName);
+            unlink($tmpName . '.pdf');
+            if($result){
+                // 上传七牛
+                QiniuApiHelper::delete($pngName);
+                $result = QiniuApiHelper::upload($pngName);
+                unlink($pngName);
+                if(isset($result['key'])){
+                    $this->data = [
+                        'code' => self::API_CODE_SUCCESS,
+                        'msg' => self::API_CODE_SUCCESS_MSG
+                    ];
+                }
             }
+        }catch (\Exception $e){
+            return $this->data;
         }
-
-
-
     }
 }
