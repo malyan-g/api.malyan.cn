@@ -61,7 +61,6 @@ class ImageHelper extends Object
             return false;
         }
         $im = new \Imagick();
-        $im->BorderImage(new \ImagickPixel("white") , 8,8);
         $im->setResolution(120,120);
         $im->setCompressionQuality(100);
         if($page==-1) {
@@ -69,6 +68,7 @@ class ImageHelper extends Object
         }else {
             $im->readImage($pdf . "[" . $page . "]");
         }
+        $im->BorderImage(new \ImagickPixel("white") , 5,5);
         $Return = '';
         foreach ($im as $Key => $Var){
             $Var->setImageFormat('png');
