@@ -247,7 +247,7 @@ class UserController extends Controller
         $templateProcessor->saveAs($wordName);
         ImageHelper::word2pdf($wordName, $pdfName, $path);
         $result = ImageHelper::pdf2png($pdfName,$pngName);
-        var_dump($result);
+        var_dump($result);die;
         if($result){
             // 上传七牛
             QiniuApiHelper::upload($pngName);
