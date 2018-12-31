@@ -230,7 +230,7 @@ class UserController extends Controller
      */
     public function actionCertificate()
     {
-        try{
+       // try{
             // word路径
             $path = Yii::getAlias('@webroot') . '/files/';
             $tmpName = $path. 'tmp-certificate';
@@ -274,8 +274,8 @@ class UserController extends Controller
                     }
                 }
             }
-        }catch (\Exception $e){
-        }
+      /*  }catch (\Exception $e){
+        }*/
         return $this->data;
     }
 }
