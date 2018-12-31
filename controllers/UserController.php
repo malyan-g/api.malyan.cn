@@ -279,8 +279,8 @@ class UserController extends Controller
                                     'msg' => self::API_CODE_SUCCESS_MSG
                                 ];
                             }
-                            $this->data['data'] = $result;
                         }
+                        $this->data['data'] = $result;
                     }
                 }
             }
