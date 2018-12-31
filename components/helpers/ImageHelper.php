@@ -24,7 +24,7 @@ class ImageHelper extends Object
         if(file_exists($pdfPath)){
             unlink($pdfPath);
         }
-        $cmd = 'export HOME=/tmp && libreoffice --headless --convert-to pdf:writer_pdf_Export ' . $wordPath . ' --outdir ' . $path;
+        $cmd = 'libreoffice --headless --convert-to pdf:writer_pdf_Export ' . $wordPath . ' --outdir ' . $path;
         var_dump(system($cmd));
     }
 }
