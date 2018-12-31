@@ -280,7 +280,6 @@ class UserController extends Controller
                                 ];
                             }
                         }
-                        $this->data['data'] = $result;
                     }
                 }
             }
