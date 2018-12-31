@@ -31,7 +31,7 @@ class ImageHelper extends Object
             unlink($pdfPath);
         }
         $cmd = 'libreoffice --headless --convert-to pdf:writer_pdf_Export ' . $wordPath . ' --outdir ' . $path;
-        var_dump(system($cmd));
+        system($cmd);
     }
 
     /**
@@ -45,11 +45,11 @@ class ImageHelper extends Object
     {
         if(!extension_loaded('imagick'))
         {
-            return false;
+            return 1;
         }
         if(!file_exists($pdf))
         {
-            return false;
+            return 2;
         }
         $im = new \Imagick();
         $im->setResolution(120,120);
