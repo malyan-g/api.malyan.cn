@@ -268,7 +268,7 @@ class UserController extends Controller
                         if(isset($result['key'])){
                             $model = UserImage::findOne(['user_id' => $this->userId]);
                             if($model){
-                                if($model->certificate_url){
+                                if($model->certificate_url != ''){
                                     QiniuApiHelper::delete($model->certificate_url);
                                 }
                             }else{
@@ -337,7 +337,7 @@ class UserController extends Controller
                         if(isset($result['key'])){
                             $model = UserImage::findOne(['user_id' => $this->userId]);
                             if($model){
-                                if($model->contract_url){
+                                if($model->contract_url != ''){
                                     QiniuApiHelper::delete($model->contract_url);
                                 }
                             }else{
