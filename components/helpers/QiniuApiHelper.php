@@ -50,11 +50,11 @@ class QiniuApiHelper extends Object
      * @return array|mixed
      * @throws \Exception
      */
-    public static function upload($filename)
+    public static function upload($updateFile , $filename)
     {
         $qiniu = new Qiniu(self::ACCESS_KEY, self::SECRET_KEY,self::DOMAIN, self::BUCKET, self::ZONE);
         $updateName = MD5($filename) . '.' . substr($filename, strrpos($filename, '.')+1);
-        return $qiniu->uploadFile($filename, $updateName);
+        return $qiniu->uploadFile($updateFile, $updateName);
     }
 
     /**

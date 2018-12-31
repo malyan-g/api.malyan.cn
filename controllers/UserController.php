@@ -248,13 +248,13 @@ class UserController extends Controller
             unlink($tmpName . '.docx'); // 删除本地文件
             if($resultPdf){
                 // pdf转为图片
+                $pngName = md5('certificate-' . $this->userId) . '.png';
                 $resultPng = ImageHelper::pdf2png($tmpName . '.pdf', $path . $pngName);
                 unlink($tmpName . '.pdf');
                 if($resultPng){
-                    $pngName = 'certificate-' . $this->userId . '.png';
                     // 上传七牛
-                    $result = QiniuApiHelper::upload($path . $pngName);
-                    unlink($pngName);
+                    $result = QiniuApiHelper::upload($path . $pngName, $pngName);
+                    unlink($path . $pngName);
                     if(isset($result['key'])){
                         $this->data = [
                             'code' => self::API_CODE_SUCCESS,
