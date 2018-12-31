@@ -248,12 +248,10 @@ class UserController extends Controller
             // 删除本地文件
             unlink($tmpName . '.docx'); // 删除本地文件
             if($resultPdf){
-                 var_dump(2);
                 // pdf转为图片
                 $resultPng = ImageHelper::pdf2png($tmpName . '.pdf', $tmpName . '.png');
                 unlink($tmpName . '.pdf');
                 if($resultPng){
-                    var_dump(1);
                     // 上传七牛
                     $pngName = md5(time() . $this->userId) . '.png';
                     $result = QiniuApiHelper::upload($tmpName . '.png', $pngName);
