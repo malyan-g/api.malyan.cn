@@ -45,11 +45,11 @@ class ImageHelper extends Object
     {
         if(!extension_loaded('imagick'))
         {
-            return 1;
+            return false;
         }
         if(!file_exists($pdf))
         {
-            return 2;
+            return false;
         }
         $im = new \Imagick();
         $im->setResolution(120,120);
