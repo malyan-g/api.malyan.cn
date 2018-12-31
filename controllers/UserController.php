@@ -76,7 +76,7 @@ class UserController extends Controller
     {
         $user = User::findOne($this->userId);
         if($user){
-            $userImage = UserImage::findOne(['user_id' => $user->member_id]);
+            $userImage = UserImage::findOne(['user_id' => $user->id]);
             $member = Member::findOne($user->member_id);
             $data = [
               'userId' => $this->userId,
