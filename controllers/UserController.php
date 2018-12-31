@@ -238,18 +238,18 @@ class UserController extends Controller
                 ->asArray()
                 ->one();
             if($memberData){
-                $issueDate =  date('Y-m-d', $memberData['member_time']);
+                $issueDate =  date('Ymd', $memberData['member_time']);
                 // word路径
                 $path = Yii::getAlias('@webroot') . '/files/';
                 $tmpName = $path. 'tmp-certificate';
                 // 替换模板中的变量并保存
                 $templateProcessor = new TemplateProcessor($path . 'certificate.docx');
-                $templateProcessor->setValue('certificate_number', 20181225001);
+                $templateProcessor->setValue('certificate_number', date('Ymd' . rand(1000,9999)));
                 $templateProcessor->setValue('name', $memberData['realname']);
                 $templateProcessor->setValue('member_name', $memberData['name']);
                 $templateProcessor->setValue('id_card', $memberData['idcard']);
                 $templateProcessor->setValue('issue_date', $issueDate);
-                $templateProcessor->setValue('valid_date', date('Y-m-d', strtotime("+1 year", strtotime($issueDate))));
+                $templateProcessor->setValue('valid_date', date('Ymd', strtotime("+1 year", strtotime($issueDate))));
                 $templateProcessor->saveAs($tmpName . '.docx');
                 // word转为pdf
                 $resultPdf = ImageHelper::word2pdf($tmpName . '.docx', $tmpName . '.pdf', $path);
