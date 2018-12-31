@@ -275,7 +275,7 @@ class UserController extends Controller
                 }
             }
         }catch (\Exception $e){
-            return $this->data;
         }
+        return $this->data;
     }
 }
