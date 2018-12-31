@@ -83,8 +83,8 @@ class UserController extends Controller
               'memberId' => $user->member_id,
               'memberName' => $member ? $member->name : '普通会员',
               'percent' => 38,
-              'certificateUrl' => $userImage ? self::IMAGE_DOMAIN . $userImage->certificate_url : '',
-              'contractUrl' =>$userImage ? self::IMAGE_DOMAIN . $userImage->contract_url : ''
+              'certificateUrl' => $userImage && $userImage->certificate_url ? self::IMAGE_DOMAIN . $userImage->certificate_url : '',
+              'contractUrl' =>$userImage && $userImage->contract_url ? self::IMAGE_DOMAIN . $userImage->contract_url : ''
             ];
             $this->data = [
                 'code' => self::API_CODE_SUCCESS,
