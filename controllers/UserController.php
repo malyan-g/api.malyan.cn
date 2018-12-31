@@ -273,7 +273,7 @@ class UserController extends Controller
                                 $model->user_id = $this->userId;
                             }
                             $model->certificate_url = $result['key'];
-                            if($model->save()){
+                            if($model->save(false)){
                                 $this->data = [
                                     'code' => self::API_CODE_SUCCESS,
                                     'msg' => self::API_CODE_SUCCESS_MSG
