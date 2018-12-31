@@ -231,6 +231,10 @@ class UserController extends Controller
     {
         // word路径
         $path = Yii::getAlias('@webroot') . '/files/';
+        $name = $path . md5('certificate-' . $this->userId );
+        $wordName = $name. '.docx';
+        $pdfName = $name. '.pdf';
+        $pngName = $name . '.png';
         // 替换模板中的变量并保存
         $wordTemplate = $path . 'certificate.docx';
         $templateProcessor = new TemplateProcessor($wordTemplate);
@@ -240,17 +244,14 @@ class UserController extends Controller
         $templateProcessor->setValue('id_card', 612727199111050057);
         $templateProcessor->setValue('issue_date', 20181225);
         $templateProcessor->setValue('valid_date', 20191225);
-        $wordName = $path . md5('certificate-' . $this->userId ). '.docx';
-        if(file_exists($wordName)){
-            unlink($wordName);
-        }
         $templateProcessor->saveAs($wordName);
-
-        $pdfName = $path . md5('certificate-' . $this->userId ). '.pdf';
         ImageHelper::word2pdf($wordName, $pdfName, $path);
+        ImageHelper::pdf2png($pdfName,$pngName);
         // 上传七牛
-        //QiniuApiHelper::upload($wordName);
+        QiniuApiHelper::upload($pngName);
         // 删除本地文件
-        //unlink($wordName);
+        unlink($wordName);
+        unlink($pdfName);
+        unlink($pngName);
     }
 }
