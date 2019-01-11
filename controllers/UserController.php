@@ -82,7 +82,8 @@ class UserController extends Controller
               'userId' => $this->userId,
               'memberId' => $user->member_id,
               'memberName' => $member ? $member->name : '普通会员',
-              'percent' => 38,
+              'realname' => $user->realname,
+              'percent' => 82,
               'certificateUrl' => $userImage && $userImage->certificate_url ? self::IMAGE_DOMAIN . $userImage->certificate_url : '',
               'contractUrl' =>$userImage && $userImage->contract_url ? self::IMAGE_DOMAIN . $userImage->contract_url : ''
             ];
@@ -220,6 +221,116 @@ class UserController extends Controller
             $this->data['msg'] = '每日最多可提交5条投诉或者建议';
         }
 
+        return $this->data;
+    }
+
+    /**
+     * 获取用户信息
+     * @return array
+     */
+    public function actionGetInfo()
+    {
+        $model = User::findOne($this->userId);
+        if($model){
+            $this->data = [
+                'code' => self::API_CODE_SUCCESS,
+                'msg' => self::API_CODE_SUCCESS_MSG,
+                'data' => [
+                    'realname' => $model->realname,
+                    'idcard' => $model->idcard
+                ]
+            ];
+        }
+        return $this->data;
+    }
+
+    /**
+     * 修改基本信息
+     * @return array
+     */
+    public function actionInfo()
+    {
+        $model = User::findOne($this->userId);
+        if($model){
+            $model->setScenario('info');
+            $data = json_decode(Yii::$app->request->post('form'), true);
+            if($model->load(['data' => $data], 'data') && $model->validate()){
+                if($model->save(false)){
+                    $this->data = [
+                        'code' => self::API_CODE_SUCCESS,
+                        'msg' => self::API_CODE_SUCCESS_MSG
+                    ];
+                }
+            }else{
+                $this->data['msg'] = current($model->firstErrors);
+            }
+        }
+        return $this->data;
+    }
+
+    /**
+     * 获取绑定手机号
+     * @return array
+     */
+    public function actionGetMobile()
+    {
+        $model = User::findOne($this->userId);
+        if($model){
+            $this->data = [
+                'code' => self::API_CODE_SUCCESS,
+                'msg' => self::API_CODE_SUCCESS_MSG,
+                'mobile' => $model->mobile
+            ];
+        }
+        return $this->data;
+    }
+
+    /**
+     * 修改绑定手机
+     * @return array
+     */
+    public function actionMobile()
+    {
+        $model = User::findOne($this->userId);
+        if($model){
+            $model->setScenario('mobile');
+            $data = json_decode(Yii::$app->request->post('form'), true);
+            if($model->load(['data' => $data], 'data') && $model->validate()){
+                Yii::$app->cache->delete($model::VERIFY_CODE_KEY . $model->id);
+                if($model->save(false)){
+                    $this->data = [
+                        'code' => self::API_CODE_SUCCESS,
+                        'msg' => self::API_CODE_SUCCESS_MSG
+                    ];
+                }
+            }else{
+                $this->data['msg'] = current($model->firstErrors);
+            }
+        }
+        return $this->data;
+    }
+
+    /**
+     * 发送验证码
+     * @return array
+     */
+    public function actionSendCode()
+    {
+        $model = User::findOne($this->userId);
+        if($model){
+            $model->setScenario('sendMsm');
+            $mobile = Yii::$app->request->post('mobile');
+            if($model->load(['data' => ['mobile' => $mobile]], 'data') && $model->validate()){
+                if($model->sendVerifyCode()){
+                    $this->data = [
+                        'code' => self::API_CODE_SUCCESS,
+                        'msg' => self::API_CODE_SUCCESS_MSG
+                    ];
+                }
+            }else{
+                $this->data['msg'] = current($model->firstErrors);
+            }
+        }
         return $this->data;
     }
 
