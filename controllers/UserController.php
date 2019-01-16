@@ -8,21 +8,21 @@
 
 namespace app\controllers;
 
-use app\components\helpers\ImageHelper;
-use app\models\Complaint;
-use app\models\Member;
-use app\models\MemberInvite;
-use app\models\Order;
-use app\models\OrderAttach;
-use app\models\Product;
-use app\models\UserImage;
 use YII;
 use app\models\User;
+use yii\db\ActiveQuery;
+use app\models\Order;
+use app\models\Product;
+use app\models\Member;
+use app\models\Complaint;
+use app\models\UserImage;
+use app\models\OrderAttach;
+use app\models\MemberInvite;
 use app\components\helpers\ScHelper;
 use app\components\helpers\WxApiHelper;
 use PhpOffice\PhpWord\TemplateProcessor;
+use app\components\helpers\ImageHelper;
 use app\components\helpers\QiniuApiHelper;
-use yii\db\ActiveQuery;
 
 /**
  * 用户接口

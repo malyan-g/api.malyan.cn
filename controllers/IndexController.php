@@ -8,6 +8,8 @@
 
 namespace app\controllers;
 
+use app\models\BaseConfig;
+
 /**
  * 首页接口
  * Class IndexController
@@ -21,23 +23,13 @@ class IndexController extends Controller
      */
     public function actionIndex()
     {
+        $model = BaseConfig::findOne(1);
         $this->data = [
             'code' => self::API_CODE_SUCCESS,
             'data' => [
-                'bannerArray' => [
-                    'http://img.malyan.cn/banner-1.jpg',
-                    'http://img.malyan.cn/banner-2.jpg',
-                    'http://img.malyan.cn/banner-3.jpg',
-                    'http://img.malyan.cn/banner-4.jpg',
-                    'http://img.malyan.cn/banner-5.jpg'
-                ],
-                'productArray' => [
-                    'http://img.malyan.cn/WechatIMG18.jpeg',
-                    'http://img.malyan.cn/WechatIMG10.jpeg'
-                ],
-                'recruitArray' => [
-                    'http://img.malyan.cn/WechatIMG11.jpeg'
-                ]
+                'bannerArray' => explode(',', $model->index_banner),
+                'productArray' => explode(',', $model->index_content),
+                'recruitArray' => explode(',', $model->index_footer),
             ]
         ];
         return $this->data;

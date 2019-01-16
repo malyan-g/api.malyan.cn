@@ -9,8 +9,6 @@
 namespace app\components\helpers;
 
 use yii\base\Object;
-use yii\httpclient\Client;
-use yii\helpers\ArrayHelper;
 use crazyfd\qiniu\Qiniu;
 
 /**
@@ -51,8 +49,13 @@ class QiniuApiHelper extends Object
      * @return array|mixed
      * @throws \Exception
      */
-    public static function upload($updateFile , $filename)
+    public static function upload($updateFile , $filename = '')
     {
+        if($filename == ''){
+            $pos = strrpos($updateFile, '.');
+            $ext = substr($updateFile, $pos);
+            $filename = md5($updateFile) . $ext;
+        }
         $qiniu = new Qiniu(self::ACCESS_KEY, self::SECRET_KEY,self::DOMAIN, self::BUCKET, self::ZONE);
         return $qiniu->uploadFile($updateFile, $filename);
     }
