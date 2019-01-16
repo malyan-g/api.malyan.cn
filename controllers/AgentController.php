@@ -32,7 +32,7 @@ class AgentController extends Controller
                 $this->data['isInvite'] = true;
                 $model = BaseConfig::findOne(1);
                 $this->data['data'] =  [
-                    'backgroundUrl' => $model->agent_image
+                    'backgroundUrl' => explode(',', $model->agent_image)
                 ];
             }
         }
