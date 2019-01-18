@@ -166,6 +166,7 @@ class UserController extends Controller
         $memberData = Member::find()
             ->select(['id', 'name'])
             ->where(['type' => 0])
+            ->limit(4)
             ->asArray()
             ->all();
 
