@@ -156,8 +156,9 @@ class UserController extends Controller
         $inviteData = MemberInvite::find()
             ->select(['member_id',' count(member_id) member_number'])
             ->innerJoin(User::tableName(), User::tableName() . '.id=user_id')
-            ->where(['invite_user_id' => $this->userId])
+            ->where(['invite_user_id' => $this->userId, 'type' => 0])
             ->groupBy('member_id')
+            ->limit(4)
             ->indexBy('member_id')
             ->asArray()
             ->all();
