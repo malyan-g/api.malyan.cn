@@ -156,7 +156,6 @@ class UserController extends Controller
         $inviteData = MemberInvite::find()
             ->select(['member_id',' count(member_id) member_number'])
             ->innerJoin(User::tableName(), User::tableName() . '.id=user_id')
-            ->innerJoin(Member::tableName(), Member::tableName() . '.id=member_id and type1=0')
             ->where(['invite_user_id' => $this->userId])
             ->groupBy('member_id')
             ->limit(4)
@@ -166,6 +165,7 @@ class UserController extends Controller
 
         $memberData = Member::find()
             ->select(['id', 'name'])
+            ->where(['type' => 0])
             ->asArray()
             ->all();
 
