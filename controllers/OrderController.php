@@ -397,8 +397,9 @@ class OrderController extends Controller
     }
 
     /**
-     * 查询物流
+     *  查询物流
      * @return array
+     * @throws \Exception
      */
     public function actionLogistics()
     {
@@ -409,12 +410,13 @@ class OrderController extends Controller
                 $this->data = [
                     'code' => self::API_CODE_SUCCESS,
                     'msg' => self::API_CODE_SUCCESS_MSG,
-                    'data' => []
+                    'data' => [
+                        'shipperName' => $model->shipperArray[$model->shipper_code],
+                        'logisticsNumber' => $model->logistics_number
+                    ]
                 ];
                 $result = ExpressApiHelper::query($model->shipper_code, $model->logistics_number);
-                if($result['Success']){
-                    $this->data['data'] = $result['Traces'] ;
-                }
+                $this->data['data']['detailArray'] = $result['Success'] ? $result['Traces'] : [];
             }
         }
 
