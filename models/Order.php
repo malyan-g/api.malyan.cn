@@ -16,6 +16,8 @@ use Yii;
  * @property integer $total_number
  * @property integer $status
  * @property string $serial_number
+ * @property string $shipper_code
+ * @property string $logistics_number
  * @property integer $payment_time
  * @property integer $delivery_time
  * @property integer $complete_time
@@ -47,6 +49,19 @@ class Order extends \yii\db\ActiveRecord
         self::ORDER_STATUS_HAS_CANCEL => 'cancel'
     ];
 
+    /**
+     * 快递公司编码
+     * @var array
+     */
+    public $shipperArray = [
+        //'SF' => '顺丰速运',
+        'ZTO' => '中通快递',
+        'YTO' => '圆通速递',
+        'YD' => '韵达速递',
+        'YZPY' => '邮政快递包裹',
+        'EMS' => 'EMS',
+        //'STO' => '申通快递',
+    ];
 
     /**
      * @inheritdoc
@@ -65,7 +80,7 @@ class Order extends \yii\db\ActiveRecord
             [['user_id'], 'required'],
             [['total_amount', 'cash_amount', 'balance_amount'], 'number'],
             [['user_id', 'total_number', 'status', 'payment_time', 'delivery_time', 'complete_time', 'created_at'], 'integer'],
-            [['order_number', 'serial_number'], 'string', 'max' => 30],
+            [['order_number', 'serial_number', 'shipper_code', 'logistics_number'], 'string', 'max' => 30],
         ];
     }
 
@@ -84,6 +99,8 @@ class Order extends \yii\db\ActiveRecord
             'total_number' => '总数量',
             'status' => '订单状态（1-未支付 2-待发货 3-待收货 4-已完成 5-已取消）',
             'serial_number' => '支付流水号',
+            'shipper_code' => '快递公司',
+            'logistics_number' => '物流号',
             'payment_time' => '支付时间',
             'delivery_time' => '发货时间',
             'complete_time' => '完成时间',

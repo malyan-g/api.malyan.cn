@@ -18,6 +18,7 @@ use app\models\OrderAttach;
 use app\models\ProductPrice;
 use app\models\OrderAddress;
 use app\models\ProductBalancePrice;
+use app\components\helpers\ExpressApiHelper;
 
 /**
  * 订单接口
@@ -316,8 +317,7 @@ class OrderController extends Controller
      */
     public function actionPayment()
     {
-        $requestData = Yii::$app->request->post();
-        $id = (int) ArrayHelper::getValue($requestData, 'id');
+        $id = (int)  Yii::$app->request->post('id');
         if($id > 0){
             $model = Order::findOne(['id' => $id, 'user_id' => $this->userId, 'status' => Order::ORDER_STATUS_NOT_PAY]);
             if($model){
@@ -343,8 +343,7 @@ class OrderController extends Controller
      */
     public function actionCancel()
     {
-        $requestData = Yii::$app->request->post();
-        $id = (int) ArrayHelper::getValue($requestData, 'id');
+        $id = (int)  Yii::$app->request->post('id');
         if($id > 0){
             $model = Order::findOne(['id' => $id, 'user_id' => $this->userId, 'status' => Order::ORDER_STATUS_NOT_PAY]);
             if($model){
@@ -378,8 +377,7 @@ class OrderController extends Controller
      */
     public function actionConfirmReceipt()
     {
-        $requestData = Yii::$app->request->post();
-        $id = (int) ArrayHelper::getValue($requestData, 'id');
+        $id = (int)  Yii::$app->request->post('id');
         if($id > 0) {
             $model = Order::findOne(['id' => $id, 'user_id' => $this->userId, 'status' => Order::ORDER_STATUS_STAY_RECEIVE_GOODS]);
             if ($model) {
@@ -395,6 +393,31 @@ class OrderController extends Controller
                 }
             }
         }
+        return $this->data;
+    }
+
+    /**
+     * 查询物流
+     * @return array
+     */
+    public function actionLogistics()
+    {
+        $id = (int)  Yii::$app->request->post('id');
+        if($id > 0){
+            $model = Order::findOne($id);
+            if($model && $model->status > $model::ORDER_STATUS_STAY_SEND_GOODS && $model->status < $model::ORDER_STATUS_HAS_CANCEL){
+                $this->data = [
+                    'code' => self::API_CODE_SUCCESS,
+                    'msg' => self::API_CODE_SUCCESS_MSG,
+                    'data' => []
+                ];
+                $result = ExpressApiHelper::query($model->shipper_code, $model->logistics_number);
+                if($result['Success']){
+                    $this->data['data'] = $result['Traces'] ;
+                }
+            }
+        }
+
         return $this->data;
     }
 
