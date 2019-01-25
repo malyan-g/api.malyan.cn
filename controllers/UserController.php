@@ -331,9 +331,9 @@ class UserController extends Controller
                             'code' => self::API_CODE_SUCCESS,
                             'msg' => self::API_CODE_SUCCESS_MSG
                         ];
-                    }}else{
-                    $this->data['msg'] = '发送失败';
-                }
+                    }else{
+                        $this->data['msg'] = '发送失败';
+                    }
                 }else{
                     $this->data['msg'] = '每天最多可以发送10条验证码';
                 }
