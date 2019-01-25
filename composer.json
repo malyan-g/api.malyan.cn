@@ -20,7 +20,8 @@
         "yiisoft/yii2-swiftmailer": "~2.0.0",
         "yiisoft/yii2-httpclient": "^2.0",
         "phpoffice/phpword": "^0.15.0",
-        "crazyfd/yii2-qiniu": "^1.03"
+        "crazyfd/yii2-qiniu": "^1.03",
+        "alibabacloud/client": "^1.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

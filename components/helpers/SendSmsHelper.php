@@ -9,9 +9,9 @@
 namespace app\components\helpers;
 
 use yii\base\Object;
-use yii\httpclient\Client;
-use yii\helpers\ArrayHelper;
-use crazyfd\qiniu\Qiniu;
+use AlibabaCloud\Client\AlibabaCloud;
+use AlibabaCloud\Client\Exception\ClientException;
+use AlibabaCloud\Client\Exception\ServerException;
 
 /**
  * 发送短信接口
@@ -21,28 +21,60 @@ use crazyfd\qiniu\Qiniu;
 class SendSmsHelper extends Object
 {
     /**
-     * 七牛AK
+     * 阿里云AK
      */
-    const ACCESS_KEY= 'n-K0BplUXED8juHWjXm4oLbWx3UlppUraYwaDIgR';
+    const ACCESS_KEY= 'LTAIwB72NQ7oQZsj';
 
     /**
-     * 七牛SK
+     * 阿里云SK
      */
-    const SECRET_KEY = 'sET-cgQCg4A6om1zuXV9f0i2MTLptuo1IyW4HJPC';
+    const SECRET_KEY = '62nohL1lsuPDONDK3xUDy8WfM0ZRiX';
 
     /**
-     * 域名
+     * 签名名称
      */
-    const DOMAIN = 'http://img.malyan.cn';
+    const  SIGN_NAME = '菜根堂';
 
     /**
-     * @param $updateFile
-     * @param $filename
-     * @return array|mixed
-     * @throws \Exception
+     * 模板CODE
      */
-    public static function send($phone, $msg)
+    const TEMPLATE_CODE = 'SMS_157280381';
+
+    /**
+     * 发送
+     * @param $mobile
+     * @param $code
+     * @return array
+     */
+    public static function sendCode($mobile, $code)
     {
-        return false;
+        $data = [];
+        AlibabaCloud::accessKeyClient(self::ACCESS_KEY,  self::SECRET_KEY)
+            ->regionId('cn-hangzhou')
+            ->asGlobalClient();
+        try {
+            $result = AlibabaCloud::rpcRequest()
+                ->product('Dysmsapi')
+                ->version('2017-05-25')
+                ->action('SendSms')
+                ->method('POST')
+                ->options([
+                    'query' => [
+                        'RegionId' => 'cn-hangzhou',
+                        'PhoneNumbers' => $mobile,
+                        'SignName' => self::SIGN_NAME,
+                        'TemplateCode' => self::TEMPLATE_CODE,
+                        'TemplateParam' => json_encode(['code' => $code]),
+                    ],
+                ])
+                ->request();
+            $data = $result->toArray();
+        } catch (ClientException $e) {
+             // echo $e->getErrorMessage() . PHP_EOL;
+        } catch (ServerException $e) {
+            // echo $e->getErrorMessage() . PHP_EOL;
+        }
+
+        return $data;
     }
 }

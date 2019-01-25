@@ -9,9 +9,18 @@ class ComposerStaticInitaaf6c0d669caf583ba798cfff6cfef21
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
-        '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
         'a0edc8309cc5e1d60e3047b5df6b7052' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/functions_include.php',
+        'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
+        '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
+        'b067bc7112e384b61c701452d53a14a8' => __DIR__ . '/..' . '/mtdowling/jmespath.php/src/JmesPath.php',
+        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        '65fec9ebcfbb3cbb4fd0d519687aea01' => __DIR__ . '/..' . '/danielstjules/stringy/src/Create.php',
+        'd767e4fc2dc52fe66584ab8c6684783e' => __DIR__ . '/..' . '/adbario/php-dot-notation/src/helpers.php',
         '180092cfc969a12e06f2132a203a3184' => __DIR__ . '/..' . '/codeception/verify/src/Codeception/function.php',
+        '4e66b0302c5365a258da95ac48c898b4' => __DIR__ . '/..' . '/alibabacloud/client/src/Constants/Business.php',
+        '8edfd8536faf1ddbd3387572b4787747' => __DIR__ . '/..' . '/alibabacloud/client/src/Constants/ErrorCode.php',
+        '66453932bc1be9fb2f910a27947d11b6' => __DIR__ . '/..' . '/alibabacloud/client/src/Functions.php',
+        'cd504dd38cbb5730802cddd1e32ff434' => __DIR__ . '/..' . '/alibabacloud/client/src/Load.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -33,6 +42,7 @@ class ComposerStaticInitaaf6c0d669caf583ba798cfff6cfef21
         'c' => 
         array (
             'crazyfd\\qiniu\\' => 14,
+            'clagiordano\\weblibs\\configmanager\\' => 34,
             'cebe\\markdown\\' => 14,
         ),
         'Z' => 
@@ -54,6 +64,7 @@ class ComposerStaticInitaaf6c0d669caf583ba798cfff6cfef21
             'Symfony\\Component\\CssSelector\\' => 30,
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Component\\BrowserKit\\' => 29,
+            'Stringy\\' => 8,
             'Stecman\\Component\\Symfony\\Console\\BashCompletion\\' => 49,
         ),
         'P' => 
@@ -63,9 +74,15 @@ class ComposerStaticInitaaf6c0d669caf583ba798cfff6cfef21
             'PhpOffice\\PhpWord\\' => 18,
             'PhpOffice\\Common\\' => 17,
         ),
+        'J' => 
+        array (
+            'JmesPath\\' => 9,
+        ),
         'G' => 
         array (
             'GuzzleHttp\\Psr7\\' => 16,
+            'GuzzleHttp\\Promise\\' => 19,
+            'GuzzleHttp\\' => 11,
         ),
         'F' => 
         array (
@@ -80,6 +97,11 @@ class ComposerStaticInitaaf6c0d669caf583ba798cfff6cfef21
         array (
             'Codeception\\Extension\\' => 22,
             'Codeception\\' => 12,
+        ),
+        'A' => 
+        array (
+            'AlibabaCloud\\Client\\' => 20,
+            'Adbar\\' => 6,
         ),
     );
 
@@ -125,6 +147,10 @@ class ComposerStaticInitaaf6c0d669caf583ba798cfff6cfef21
         'crazyfd\\qiniu\\' => 
         array (
             0 => __DIR__ . '/..' . '/crazyfd/yii2-qiniu',
+        ),
+        'clagiordano\\weblibs\\configmanager\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/clagiordano/weblibs-configmanager/src',
         ),
         'cebe\\markdown\\' => 
         array (
@@ -174,6 +200,10 @@ class ComposerStaticInitaaf6c0d669caf583ba798cfff6cfef21
         array (
             0 => __DIR__ . '/..' . '/symfony/browser-kit',
         ),
+        'Stringy\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/danielstjules/stringy/src',
+        ),
         'Stecman\\Component\\Symfony\\Console\\BashCompletion\\' => 
         array (
             0 => __DIR__ . '/..' . '/stecman/symfony-console-completion/src',
@@ -194,9 +224,21 @@ class ComposerStaticInitaaf6c0d669caf583ba798cfff6cfef21
         array (
             0 => __DIR__ . '/..' . '/phpoffice/common/src/Common',
         ),
+        'JmesPath\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mtdowling/jmespath.php/src',
+        ),
         'GuzzleHttp\\Psr7\\' => 
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
+        ),
+        'GuzzleHttp\\Promise\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/promises/src',
+        ),
+        'GuzzleHttp\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
         ),
         'Faker\\' => 
         array (
@@ -217,6 +259,14 @@ class ComposerStaticInitaaf6c0d669caf583ba798cfff6cfef21
         'Codeception\\' => 
         array (
             0 => __DIR__ . '/..' . '/codeception/base/src/Codeception',
+        ),
+        'AlibabaCloud\\Client\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/alibabacloud/client/src',
+        ),
+        'Adbar\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/adbario/php-dot-notation/src',
         ),
     );
 

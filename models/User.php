@@ -124,6 +124,9 @@ class User extends \yii\db\ActiveRecord
         ];
     }
 
+    /**
+     * @inheritdoc
+     */
     public function afterFind()
     {
         $this->oldMobile = $this->mobile;
@@ -179,9 +182,16 @@ class User extends \yii\db\ActiveRecord
             'verifyCode' => rand(100000, 999999),
             'duration' => time() + 600
         ];
-        // 发送手机验证码
-        //SendSmsHelper::send($this->mobile,'你的短信验证码为:' . $data['verifyCode'] . '。10分钟内有效');
-        return Yii::$app->cache->set(self::VERIFY_CODE_KEY . $this->id, $data, 3600 * 6);
+        $model = new SmsRecord();
+        $model->mobile = $this->mobile;
+        $model->user_id = $this->id;
+        $model->content = $data['verifyCode'];
+        if($model->save()){
+            // 发送手机验证码
+            SendSmsHelper::sendCode($this->mobile, $data['verifyCode']);
+            return Yii::$app->cache->set(self::VERIFY_CODE_KEY . $this->id, $data, 3600 * 6);
+        }
+       return false;
     }
 
     /**

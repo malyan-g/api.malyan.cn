@@ -8,6 +8,7 @@
 
 namespace app\controllers;
 
+use app\models\SmsRecord;
 use YII;
 use app\models\User;
 use yii\db\ActiveQuery;
@@ -324,11 +325,15 @@ class UserController extends Controller
             $model->setScenario('sendMsm');
             $mobile = Yii::$app->request->post('mobile');
             if($model->load(['data' => ['mobile' => $mobile]], 'data') && $model->validate()){
-                if($model->sendVerifyCode()){
-                    $this->data = [
-                        'code' => self::API_CODE_SUCCESS,
-                        'msg' => self::API_CODE_SUCCESS_MSG
-                    ];
+                if(SmsRecord::checkSend($model->id)){
+                    if($model->sendVerifyCode()){
+                        $this->data = [
+                            'code' => self::API_CODE_SUCCESS,
+                            'msg' => self::API_CODE_SUCCESS_MSG
+                        ];
+                    }
+                }else{
+                    $this->data['msg'] = '每天最多可以发送10条验证码';
                 }
             }else{
                 $this->data['msg'] = current($model->firstErrors);
