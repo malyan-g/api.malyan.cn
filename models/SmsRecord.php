@@ -32,7 +32,6 @@ class SmsRecord extends \yii\db\ActiveRecord
         return [
             [['user_id', 'mobile', 'content'], 'required'],
             [['user_id', 'mobile', 'send_result', 'created_at'], 'integer'],
-            [['send_result', 'created_at'], 'required'],
             [['content'], 'string', 'max' => 30],
         ];
     }

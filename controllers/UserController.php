@@ -335,7 +335,7 @@ class UserController extends Controller
                         $this->data['msg'] = '发送失败';
                     }
                 }else{
-                    $this->data['msg'] = '每天最多可以发送10条验证码';
+                    $this->data['msg'] = '每天最多获取10次验证码';
                 }
             }else{
                 $this->data['msg'] = current($model->firstErrors);

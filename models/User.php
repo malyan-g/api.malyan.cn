@@ -185,12 +185,17 @@ class User extends \yii\db\ActiveRecord
         $model = new SmsRecord();
         $model->mobile = $this->mobile;
         $model->user_id = $this->id;
-        $model->content = $data['verifyCode'];
+        $model->content = (string) $data['verifyCode'];
         if($model->save()){
             // 发送手机验证码
-            SendSmsHelper::sendCode($this->mobile, $data['verifyCode']);
-            return Yii::$app->cache->set(self::VERIFY_CODE_KEY . $this->id, $data, 3600 * 6);
+            $result = SendSmsHelper::sendCode($this->mobile, $data['verifyCode']);
+            if($result['Code'] === 'OK'){
+                $model->send_result = 1;
+                $model->save(false);
+                return Yii::$app->cache->set(self::VERIFY_CODE_KEY . $this->id, $data, 3600 * 6);
+            }
         }
+        var_dump($model->errors);
        return false;
     }
 
