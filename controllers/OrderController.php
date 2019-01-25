@@ -417,7 +417,7 @@ class OrderController extends Controller
                     ]
                 ];
                 $result = ExpressApiHelper::query($model->shipper_code, $model->logistics_number);
-                $this->data['data']['detailArray'] = $result['Success'] ? $result['Traces'] : [];
+                $this->data['data']['detailArray'] = $result['Success'] ? array_reverse($result['Traces']) : [];
             }
         }
 
