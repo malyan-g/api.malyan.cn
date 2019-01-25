@@ -195,7 +195,6 @@ class User extends \yii\db\ActiveRecord
                 return Yii::$app->cache->set(self::VERIFY_CODE_KEY . $this->id, $data, 3600 * 6);
             }
         }
-        var_dump($model->errors);
        return false;
     }
 
