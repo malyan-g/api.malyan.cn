@@ -411,6 +411,7 @@ class OrderController extends Controller
                     'code' => self::API_CODE_SUCCESS,
                     'msg' => self::API_CODE_SUCCESS_MSG,
                     'data' => [
+                        'orderNumber' => $model->order_number,
                         'shipperName' => $model->shipperArray[$model->shipper_code],
                         'logisticsNumber' => $model->logistics_number
                     ]
