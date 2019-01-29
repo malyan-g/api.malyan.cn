@@ -48,7 +48,9 @@ class SendSmsHelper extends Object
      */
     public static function sendCode($mobile, $code)
     {
-        $data = [];
+        $data = [
+            'Code' => 'error'
+        ];
         AlibabaCloud::accessKeyClient(self::ACCESS_KEY,  self::SECRET_KEY)
             ->regionId('cn-hangzhou')
             ->asGlobalClient();
@@ -70,9 +72,9 @@ class SendSmsHelper extends Object
                 ->request();
             $data = $result->toArray();
         } catch (ClientException $e) {
-             // echo $e->getErrorMessage() . PHP_EOL;
+            $data['msg'] = $e->getErrorMessage() . PHP_EOL;
         } catch (ServerException $e) {
-            // echo $e->getErrorMessage() . PHP_EOL;
+            $data['msg'] = $e->getErrorMessage() . PHP_EOL;
         }
 
         return $data;
