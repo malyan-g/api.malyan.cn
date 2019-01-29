@@ -166,8 +166,8 @@ class Order extends \yii\db\ActiveRecord
         if(!$data){
             $data = [];
         }
-        $h = date('G');
-        $i = date('i');
+        $h = date('G', $this->created_at);
+        $i = date('i', $this->created_at);
         $data[$h][$i][] = $this->id;
         $cache->set($key, $data);
     }
