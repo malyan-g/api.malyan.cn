@@ -273,6 +273,7 @@ class OrderController extends Controller
                                         $user->balance_expire_time = time() + 30 * 24 * 3600;
                                     }
                                 }
+                                $user->setScenario('select');
                                 $user->save();
                             }
                             // 实际现金付款金额
@@ -296,6 +297,10 @@ class OrderController extends Controller
                                     'paySign' => ''
                                 ];
                             }
+
+                            // 环形队列
+                            $order->ringQueue();
+
                             $this->data = [
                                 'code' => self::API_CODE_SUCCESS,
                                 'msg' => self::API_CODE_SUCCESS_MSG,

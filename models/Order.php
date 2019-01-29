@@ -25,6 +25,8 @@ use Yii;
  */
 class Order extends \yii\db\ActiveRecord
 {
+    const ORDER_RING_QUEUE_KEY = 'order.ring.queue'; // 环信队列key
+
     const ORDER_STATUS_NOT_PAY = 1; // 未支付
     const ORDER_STATUS_STAY_SEND_GOODS = 2; // 待发货
     const ORDER_STATUS_STAY_RECEIVE_GOODS = 3; // 待收货
@@ -151,5 +153,22 @@ class Order extends \yii\db\ActiveRecord
             return $this->getOrderNumber();
         }
         return $orderNumber;
+    }
+
+    /**
+     * 订单存入到环形队列
+     */
+    public function ringQueue()
+    {
+        $key = self::ORDER_RING_QUEUE_KEY;
+        $cache = Yii::$app->cache;
+        $data = $cache->get($key);
+        if(!$data){
+            $data = [];
+        }
+        $h = date('G');
+        $i = date('i');
+        $data[$h][$i][] = $this->id;
+        $cache->set($key, $data);
     }
 }

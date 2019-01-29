@@ -96,7 +96,7 @@ class User extends \yii\db\ActiveRecord
             ],
             'sendMsm' => [
                 'mobile', 'oldMobile'
-            ]
+            ],
         ];
     }
 
