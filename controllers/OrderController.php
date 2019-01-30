@@ -299,7 +299,7 @@ class OrderController extends Controller
                             }
 
                             // 环形队列
-                            $order->ringQueue();
+                            $order->addRingQueue();
 
                             $this->data = [
                                 'code' => self::API_CODE_SUCCESS,

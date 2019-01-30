@@ -8,10 +8,10 @@
 
 namespace app\controllers;
 
-use app\components\helpers\ScHelper;
 use Yii;
 use yii\web\Response;
 use yii\helpers\ArrayHelper;
+use app\components\helpers\ScHelper;
 
 class Controller extends \yii\web\Controller
 {

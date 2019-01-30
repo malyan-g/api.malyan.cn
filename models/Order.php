@@ -158,17 +158,36 @@ class Order extends \yii\db\ActiveRecord
     /**
      * 订单存入到环形队列
      */
-    public function ringQueue()
+    public function addRingQueue()
     {
-        $key = self::ORDER_RING_QUEUE_KEY;
+        $h = date('H', $this->created_at);
+        $i = date('i', $this->created_at);
+        $s = date('s', $this->created_at);
+        $key = self::ORDER_RING_QUEUE_KEY . '.' . $h;
         $cache = Yii::$app->cache;
         $data = $cache->get($key);
         if(!$data){
             $data = [];
         }
-        $h = date('G', $this->created_at);
-        $i = date('i', $this->created_at);
-        $data[$h][$i][] = $this->id;
+
+        $data[$i][$s][$this->id] = 0;
         $cache->set($key, $data);
+    }
+
+    /**
+     * 删除到环形队列
+     */
+    public function deleteRingQueue()
+    {
+        $h = date('H', $this->created_at);
+        $i = date('i', $this->created_at);
+        $s = date('s', $this->created_at);
+        $key = self::ORDER_RING_QUEUE_KEY . '.' . $h;
+        $cache = Yii::$app->cache;
+        $data = $cache->get($key);
+        if($data){
+            unset($data[$i][$s][$this->id]);
+            $cache->set($key, $data);
+        }
     }
 }

@@ -13,7 +13,7 @@ $config = [
             'cookieValidationKey' => '2lp18Q7XzHsSkbOrNfE4jLzYXPUmypMg',
         ],
         'cache' => [
-            'class' => 'yii\caching\FileCache',
+            'class' => 'yii\redis\Cache',
         ],
         // 错误配置
         'errorHandler' => [
@@ -36,12 +36,6 @@ $config = [
         // 路由配置
         'urlManager' => require(__DIR__ . '/urlManager.php')
     ]
-];
-$config['bootstrap'][] = 'gii';
-$config['modules']['gii'] = [
-    'class' => 'yii\gii\Module',
-    // uncomment the following to add your IP if you are not connecting from localhost.
-    //'allowedIPs' => ['127.0.0.1', '::1'],
 ];
 if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
