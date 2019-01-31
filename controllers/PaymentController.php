@@ -44,10 +44,4 @@ class PaymentController extends \yii\web\Controller
             'msg' => '非法请求'
         ];
     }
-
-    public function actionIndex($id)
-    {
-        $model = Order::findOne(['id' => $id, 'status' => 1]);
-        $model->addRingQueue();
-    }
 }
