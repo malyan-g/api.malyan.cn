@@ -160,10 +160,11 @@ class Order extends \yii\db\ActiveRecord
      */
     public function addRingQueue()
     {
+        $d = date('d', $this->created_at + 3600 * 24);
         $h = date('H', $this->created_at);
         $i = date('i', $this->created_at);
         $s = date('s', $this->created_at);
-        $key = self::ORDER_RING_QUEUE_KEY . '.' . $h;
+        $key = self::ORDER_RING_QUEUE_KEY . '.' . $d . $h;
         $cache = Yii::$app->cache;
         $data = $cache->get($key);
         if(!$data){
@@ -179,10 +180,11 @@ class Order extends \yii\db\ActiveRecord
      */
     public function deleteRingQueue()
     {
+        $d = date('d', $this->created_at + 3600 * 24);
         $h = date('H', $this->created_at);
         $i = date('i', $this->created_at);
         $s = date('s', $this->created_at);
-        $key = self::ORDER_RING_QUEUE_KEY . '.' . $h;
+        $key = self::ORDER_RING_QUEUE_KEY . '.' . $d . $h;
         $cache = Yii::$app->cache;
         $data = $cache->get($key);
         if($data){
