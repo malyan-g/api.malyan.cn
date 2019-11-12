@@ -26,6 +26,7 @@ class IndexController extends Controller
         $model = BaseConfig::findOne(1);
         $this->data = [
             'code' => self::API_CODE_SUCCESS,
+            'msg' => self::API_CODE_SUCCESS_MSG,
             'data' => [
                 'bannerArray' => explode(',', $model->index_banner),
                 'productArray' => explode(',', $model->index_content),
