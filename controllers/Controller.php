@@ -37,7 +37,7 @@ class Controller extends \yii\web\Controller
      * @throws \yii\web\BadRequestHttpException
      */
     public function beforeAction($action)
-    {
+    { /*
         Yii::$app->response->format = Response::FORMAT_JSON;
         $this->data = [
             'code' => self::API_CODE_FAILURE,
@@ -45,7 +45,7 @@ class Controller extends \yii\web\Controller
         ];
 
         $route = $this->module->requestedRoute;
-        /*
+
         if(!in_array($route, $this->permissions)){
             $data = ArrayHelper::merge(Yii::$app->request->get(), Yii::$app->request->post());
             $sid = ArrayHelper::getValue($data, 'sid', null);
