@@ -28,7 +28,8 @@ class Controller extends \yii\web\Controller
     public $userId;
     public $permissions = [
         'index/index',
-        'user/login'
+        'user/login',
+        'gii'
     ];
 
     /**
