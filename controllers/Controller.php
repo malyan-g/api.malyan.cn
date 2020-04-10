@@ -19,7 +19,7 @@ class Controller extends \yii\web\Controller
     const API_CODE_FAILURE = 30001;
     const API_CODE_SUCCESS_MSG = '请求成功';
     const API_CODE_FAILURE_MSG = '请求失败';
-    const API_SIGN_KEY = 'abc123';
+    const API_SIGN_KEY = 'malyan.cn';
     const CACHE_USER_LOGIN_KEY = 'user.login.';
     const IMAGE_DOMAIN = 'http://img.malyan.cn/';
 
