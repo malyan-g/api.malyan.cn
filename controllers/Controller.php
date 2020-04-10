@@ -46,6 +46,7 @@ class Controller extends \yii\web\Controller
         ];
 
         $route = $this->module->requestedRoute;
+        var_dump($route);
         if(!in_array($route, $this->permissions)){
             $data = ArrayHelper::merge(Yii::$app->request->get(), Yii::$app->request->post());
             $sid = ArrayHelper::getValue($data, 'sid', null);
