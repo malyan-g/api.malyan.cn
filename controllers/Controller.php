@@ -16,6 +16,7 @@ use app\components\helpers\ScHelper;
 class Controller extends \yii\web\Controller
 {
     const API_CODE_SUCCESS = 10000;
+    const API_CODE_EXPIRE = 20001;
     const API_CODE_FAILURE = 30001;
     const API_CODE_SUCCESS_MSG = '请求成功';
     const API_CODE_FAILURE_MSG = '请求失败';
@@ -68,7 +69,10 @@ class Controller extends \yii\web\Controller
                         return false;
                     }
                 }else{
-                    $this->data['msg'] = 'token已失效，请重新获取token';
+                    $this->data = [
+                        'code' => self::API_CODE_EXPIRE,
+                        'msg' => 'Token已过期'
+                    ];
                     Yii::$app->response->data = $this->data;
                     return false;
                 }

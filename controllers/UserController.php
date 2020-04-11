@@ -57,8 +57,7 @@ class UserController extends Controller
                         'sign' => ScHelper::encode([
                           'id' => $user['id'],
                           'loginExpire' => $loginExpire
-                        ]),
-                        'loginExpire' => $loginExpire
+                        ])
                       ]
                     ];
                     $user['session_key'] = $loginInfo['session_key'];
