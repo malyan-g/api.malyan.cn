@@ -8,20 +8,13 @@ use app\components\helpers\SendSmsHelper;
 use app\components\helpers\IdentityCardHelper;
 
 /**
- * This is the model class for table "ml_user".
+ * This is the model class for table "ml_wx_user".
  *
  * @property integer $id
  * @property string $realname
  * @property integer $mobile
- * @property string $idcard
  * @property string $openid
- * @property integer $is_member
- * @property integer $member_id
- * @property integer $member_time
- * @property integer $is_balance
- * @property integer $balance_id
- * @property integer $balance_amount
- * @property integer $balance_time
+ * @property integer $status
  * @property integer $balance_expire_time
  * @property integer $created_at
  * @property integer $verifyCode
@@ -42,7 +35,7 @@ class User extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return '{{%user}}';
+        return '{{%wx_user}}';
     }
 
     /**
@@ -52,20 +45,13 @@ class User extends \yii\db\ActiveRecord
     {
         return [
             [['openid'], 'required', 'on' => 'create'],
-            [['realname', 'idcard'], 'required', 'on' => ['create', 'info', 'member']],
-            [['mobile', 'verifyCode'], 'required', 'on' => ['sendMsm', 'mobile', 'member']],
-            [['is_member', 'member_id', 'member_time'], 'required', 'on' => 'member'],
-            [['is_member', 'member_id', 'member_time', 'is_balance', 'balance_id', 'balance_time', 'balance_expire_time', 'created_at'], 'integer'],
-            [['mobile'], 'integer', 'on' => ['sendMsm', 'mobile', 'member']],
-            [['mobile'], 'match', 'pattern' => MatchHelper::$mobile, 'on' => ['sendMsm', 'mobile', 'member'], 'message' => '手机号格式不正确的'],
+            [['realname'], 'required', 'on' => ['create', 'info']],
+            [['mobile', 'verifyCode'], 'required', 'on' => ['sendMsm', 'mobile']],
+            [['status', 'created_at'], 'integer'],
+            [['mobile'], 'integer', 'on' => ['sendMsm', 'mobile']],
+            [['mobile'], 'match', 'pattern' => MatchHelper::$mobile, 'on' => ['sendMsm', 'mobile'], 'message' => '手机号格式不正确的'],
             [['mobile'], 'compare', 'operator'=>'!==', 'compareAttribute'=>'oldMobile', 'on' => ['sendMsm', 'mobile'], 'message' => '该手机号和原号码一致'],
             [['mobile'], 'unique', 'on' => ['sendMsm', 'mobile', 'member'], 'message' => '该手机号已绑定'],
-            [['balance_amount'], 'number'],
-            [['realname'], 'string', 'min' => 2, 'max' => 4, 'on' => ['create', 'info', 'member']],
-            [['realname'], 'match', 'pattern' => MatchHelper::$chinese, 'message' => '姓名为2-4汉字', 'on' => ['create', 'info', 'member']],
-            [[ 'idcard'], 'string', 'min' => 15, 'max' => 18, 'on' => ['create', 'info', 'member']],
-            [['idcard'], IdentityCardHelper::className(), 'on' => ['create', 'info', 'member']],
-            [['idcard'], 'unique', 'message' => '该身份证已使用',  'on' => ['create', 'info', 'member']],
             [['openid'], 'string', 'max' => 30, 'on' => 'create'],
             [['verifyCode'], 'string', 'min' => 6, 'max'=>6, 'on' => ['mobile', 'member'], 'message' => '验证码输入错误'],
             [['verifyCode'], 'match', 'pattern' => '/^[0-9]{6}$/', 'on' => ['mobile', 'member'], 'message' => '验证码输入错误'],
@@ -83,16 +69,13 @@ class User extends \yii\db\ActiveRecord
                 'openid', 'created_at'
             ],
             'info' => [
-                'realname', 'idcard'
+                'realname'
             ],
             'mobile' => [
                 'mobile', 'oldMobile', 'verifyCode'
             ],
-            'member' => [
-                'realname', 'idcard', 'mobile', 'verifyCode', 'is_member', 'member_id', 'member_time'
-            ],
             'select' => [
-                'id', 'realname', 'mobile', 'idcard', 'openid', 'is_member', 'member_id', 'member_time', 'is_balance', 'balance_id', 'balance_amount', 'balance_time', 'balance_expire_time', 'created_at', 'verifyCode'
+                'id', 'realname', 'mobile',  'openid', 'status', 'created_at', 'verifyCode'
             ],
             'sendMsm' => [
                 'mobile', 'oldMobile'
@@ -107,20 +90,12 @@ class User extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'realname' => '真实姓名',
+            'realname' => '昵称',
             'mobile' => '手机号',
-            'idcard' => '身份证',
             'openid' => '微信ID',
-            'is_member' => '会员（0-否 1-是）',
-            'member_id' => '会员等级',
-            'member_time' => '会员开通时间',
-            'is_balance' => '余额会员（0-否 1-是）',
-            'balance_id' => '余额会员等级',
-            'balance_amount' => '余额金额',
-            'balance_time' => '余额会员开通时间',
-            'balance_expire_time' => '余额会员到期时间',
+            'status' => '状态',
             'created_at' => '创建时间',
-            'verifyCode' => '验证码',
+            'verifyCode' => '验证码'
         ];
     }
 
@@ -199,33 +174,18 @@ class User extends \yii\db\ActiveRecord
     }
 
     /**
-     * @return $this
-     */
-    public function getMember()
-    {
-        return $this->hasOne(Member::className(), ['id' => 'member_id'])->select([ 'm.id', 'name']);
-    }
-
-    /**
-     * @return $this
-     */
-    public function getMember2()
-    {
-        return $this->hasOne(Member::className(), ['id' => 'member_id'])->select([ 'mb.id', 'name']);
-    }
-
-    /**
      * 获取用户
      * @param $openid
      * @return array|bool
      */
     public static function getUserInfo($openid)
     {
-        $user = self::findOne(['openid' => $openid]);
-        return $user;
+        $user = self::findOne(['openid' => $openid, 'status' => 1]);
+
         if(!$user){
             $user = new self();
             $user->openid = $openid;
+            $user->status = 1;
             $user->created_at = time();
             if(!$user->save()){
                 return false;
