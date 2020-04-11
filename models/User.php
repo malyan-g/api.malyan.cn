@@ -183,6 +183,7 @@ class User extends \yii\db\ActiveRecord
         $user = self::findOne(['openid' => $openid, 'status' => 1]);
         if(!$user){
             $user = new self();
+            $user->scenario = 'create';
             $user->openid = $openid;
             $user->created_at = time();
             if(!$user->save()){
