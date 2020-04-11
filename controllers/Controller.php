@@ -29,6 +29,9 @@ class Controller extends \yii\web\Controller
     public $permissions = [
         'index/index',
         'user/login',
+        'book/list',
+        'book/catalog-list',
+        'book/detail'
     ];
 
     /**
