@@ -184,7 +184,6 @@ class User extends \yii\db\ActiveRecord
         if(!$user){
             $user = new self();
             $user->openid = $openid;
-            $user->realname = '';
             $user->created_at = time();
             if(!$user->save()){
                 return false;
