@@ -7,7 +7,7 @@ if(isset($SYSTEM_CONFIG['YII_DEBUG']) &&  $SYSTEM_CONFIG['YII_DEBUG']){
 }
 if(isset($SYSTEM_CONFIG['YII_ENV']) &&  $SYSTEM_CONFIG['YII_ENV']){
     define('YII_ENV', 'dev');
-}
+}define('YII_ENV', 'dev');
 
 require(__DIR__ . '/../vendor/autoload.php');
 require(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');
