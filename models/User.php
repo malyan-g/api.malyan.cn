@@ -222,6 +222,7 @@ class User extends \yii\db\ActiveRecord
     public static function getUserInfo($openid)
     {
         $user = self::findOne(['openid' => $openid]);
+        return $user;
         if(!$user){
             $user = new self();
             $user->openid = $openid;
