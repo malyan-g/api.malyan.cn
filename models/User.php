@@ -45,7 +45,7 @@ class User extends \yii\db\ActiveRecord
     {
         return [
             [['openid'], 'required', 'on' => 'create'],
-            [['realname'], 'required', 'on' => ['create', 'info']],
+            [['realname'], 'string', 'max' => 20],
             [['mobile', 'verifyCode'], 'required', 'on' => ['sendMsm', 'mobile']],
             [['status', 'created_at'], 'integer'],
             [['mobile'], 'integer', 'on' => ['sendMsm', 'mobile']],
@@ -184,6 +184,7 @@ class User extends \yii\db\ActiveRecord
         if(!$user){
             $user = new self();
             $user->openid = $openid;
+            $user->realname = '';
             $user->created_at = time();
             if(!$user->save()){
                 return false;
