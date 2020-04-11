@@ -61,7 +61,7 @@ class UserController extends Controller
                     ];
                     $user['session_key'] = $loginInfo['session_key'];
                     // 记录用户登录状态
-                    //Yii::$app->cache->set(self::CACHE_USER_LOGIN_KEY . $user['id'], $user);
+                    Yii::$app->cache->set(self::CACHE_USER_LOGIN_KEY . $user['id'], $user);
                     //Yii::$app->cache->set(self::CACHE_USER_LOGIN_KEY . $user['id'], $user, 1800);
                 }
             }
