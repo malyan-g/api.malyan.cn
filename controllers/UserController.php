@@ -43,11 +43,11 @@ class UserController extends Controller
         if(!is_null($code)){
             $this->data['msg'] = '服务器异常';
             // 请求微信登录获取openid
-            $loginInfo = WxApiHelper::getLoginInfo($code);
+            $loginInfo = WxApiHelper::getLoginInfo($code);return  $loginInfo;
             if($loginInfo){
                 // 根据openid获取用户信息
                 $user = User::getUserInfo($loginInfo['openid']);
-                return  $user;
+
                 if($user){
                     $this->data = [
                       'code' => self::API_CODE_SUCCESS,
