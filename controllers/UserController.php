@@ -40,7 +40,6 @@ class UserController extends Controller
     public function actionLogin()
     {
         $code = Yii::$app->request->post('code');
-        return ['code' => Yii::$app->request->post()];
         if(!is_null($code)){
             $this->data['msg'] = '服务器异常';
             // 请求微信登录获取openid
