@@ -52,7 +52,7 @@ class Controller extends \yii\web\Controller
             $sid = ArrayHelper::getValue($data, 'sid', null);
             $signData = ScHelper::decode($sid);
             if($signData){
-                $loginExpire = ArrayHelper::getValue($data, 'loginExpire', 0);
+                $loginExpire = ArrayHelper::getValue($signData, 'loginExpire', 0);
                 if($loginExpire > time()){
                     $id = ArrayHelper::getValue($signData, 'id', 0);
                     $cacheUserLoginKey = self::CACHE_USER_LOGIN_KEY . $id;
