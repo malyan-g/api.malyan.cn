@@ -2,13 +2,13 @@
 
 namespace app\models;
 
-use app\components\helpers\IdentityCardHelper;
-use app\components\helpers\SendSmsHelper;
 use Yii;
 use app\components\helpers\MatchHelper;
+use app\components\helpers\SendSmsHelper;
+use app\components\helpers\IdentityCardHelper;
 
 /**
- * This is the model class for table "cgt_user".
+ * This is the model class for table "ml_user".
  *
  * @property integer $id
  * @property string $realname
