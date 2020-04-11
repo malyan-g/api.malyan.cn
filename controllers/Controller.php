@@ -54,14 +54,21 @@ class Controller extends \yii\web\Controller
             $sid = ArrayHelper::getValue($data, 'sid', null);
             $signData = ScHelper::decode($sid);
             if($signData){
-                $id = ArrayHelper::getValue($signData, 'id', 0);
-                $cacheUserLoginKey = self::CACHE_USER_LOGIN_KEY . $id;
-                $userInfo = Yii::$app->cache->get($cacheUserLoginKey);
-                if($userInfo){
-                    $this->userId = $userInfo['id'];
-                    //Yii::$app->cache->set($cacheUserLoginKey, $userInfo,1800);
+                $loginExpire = ArrayHelper::getValue($data, 'loginExpire', 0);
+                if($loginExpire > time()){
+                    $id = ArrayHelper::getValue($signData, 'id', 0);
+                    $cacheUserLoginKey = self::CACHE_USER_LOGIN_KEY . $id;
+                    $userInfo = Yii::$app->cache->get($cacheUserLoginKey);
+                    if($userInfo){
+                        $this->userId = $userInfo['id'];
+                        //Yii::$app->cache->set($cacheUserLoginKey, $userInfo,1800);
+                    }else{
+                        $this->data['msg'] = '请求超时';
+                        Yii::$app->response->data = $this->data;
+                        return false;
+                    }
                 }else{
-                    $this->data['msg'] = '请求超时';
+                    $this->data['msg'] = 'token已失效，请重新获取token';
                     Yii::$app->response->data = $this->data;
                     return false;
                 }

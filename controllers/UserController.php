@@ -49,13 +49,17 @@ class UserController extends Controller
                 // 根据openid获取用户信息
                 $user = User::getUserInfo($loginInfo['openid']);
                 if($user){
+                    $loginExpire = time() + LOGIN_EXPIRE;
                     $this->data = [
-                        'code' => self::API_CODE_SUCCESS,
-                        'msg' => self::API_CODE_SUCCESS_MSG,
+                      'code' => self::API_CODE_SUCCESS,
+                      'msg' => self::API_CODE_SUCCESS_MSG,
+                      'data' => [
                         'sign' => ScHelper::encode([
-                            'id' => $user['id'],
-                            'loginTime' => time()
-                        ])
+                          'id' => $user['id'],
+                          'loginExpire' => $loginExpire
+                        ]),
+                        'loginExpire' => $loginExpire
+                      ]
                     ];
                     $user['session_key'] = $loginInfo['session_key'];
                     // 记录用户登录状态
