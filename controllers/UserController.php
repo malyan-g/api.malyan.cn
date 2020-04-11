@@ -44,7 +44,7 @@ class UserController extends Controller
             $this->data['msg'] = '服务器异常';
             // 请求微信登录获取openid
             $loginInfo = WxApiHelper::getLoginInfo($code);
-
+            return $loginInfo;
             if($loginInfo){
                 // 根据openid获取用户信息
                 $user = User::getUserInfo($loginInfo['openid']);
