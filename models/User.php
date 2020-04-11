@@ -51,11 +51,11 @@ class User extends \yii\db\ActiveRecord
             [['mobile'], 'integer', 'on' => ['sendMsm', 'mobile']],
             [['mobile'], 'match', 'pattern' => MatchHelper::$mobile, 'on' => ['sendMsm', 'mobile'], 'message' => '手机号格式不正确的'],
             [['mobile'], 'compare', 'operator'=>'!==', 'compareAttribute'=>'oldMobile', 'on' => ['sendMsm', 'mobile'], 'message' => '该手机号和原号码一致'],
-            [['mobile'], 'unique', 'on' => ['sendMsm', 'mobile', 'member'], 'message' => '该手机号已绑定'],
+            [['mobile'], 'unique', 'on' => ['sendMsm', 'mobile'], 'message' => '该手机号已绑定'],
             [['openid'], 'string', 'max' => 30, 'on' => 'create'],
-            [['verifyCode'], 'string', 'min' => 6, 'max'=>6, 'on' => ['mobile', 'member'], 'message' => '验证码输入错误'],
-            [['verifyCode'], 'match', 'pattern' => '/^[0-9]{6}$/', 'on' => ['mobile', 'member'], 'message' => '验证码输入错误'],
-            ['verifyCode', 'validateVerifyCode', 'on' => ['mobile', 'member']],
+            [['verifyCode'], 'string', 'min' => 6, 'max'=>6, 'on' => ['mobile'], 'message' => '验证码输入错误'],
+            [['verifyCode'], 'match', 'pattern' => '/^[0-9]{6}$/', 'on' => ['mobile'], 'message' => '验证码输入错误'],
+            ['verifyCode', 'validateVerifyCode', 'on' => ['mobile']],
         ];
     }
 
