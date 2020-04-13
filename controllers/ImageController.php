@@ -8,7 +8,8 @@
 
 namespace app\controllers;
 
-use app\models\BaseConfig;
+use YII;
+use yii\helpers\ArrayHelper;
 
 /**
  * 图片接口
@@ -23,6 +24,9 @@ class ImageController extends Controller
      */
     public function actionIndex()
     {
+        $requestData = Yii::$app->request->post();
+        $id = (int) ArrayHelper::getValue($requestData, 'id', 0);
+
         $data = [
             [
                 'id' => 1,
@@ -66,6 +70,14 @@ class ImageController extends Controller
                 'count' => 33
             ]
         ];
+
+        if($id > 0){
+            for($i = 0; $i < 2; $i++){
+                foreach($data as $key => $val) {
+                    $data[] = $val;
+                }
+            }
+        }
 
         $this->data = [
             'code' => self::API_CODE_SUCCESS,
