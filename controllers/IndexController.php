@@ -24,6 +24,7 @@ class IndexController extends Controller
     public function actionIndex()
     {
         $model = BaseConfig::findOne(1);
+        return $model;
         $this->data = [
             'code' => self::API_CODE_SUCCESS,
             'msg' => self::API_CODE_SUCCESS_MSG,
