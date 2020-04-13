@@ -19,7 +19,7 @@ class BookController extends Controller
      * 书籍列表接口
      * @return array
      */
-	public function actionList()
+	public function actionIndex()
     {
     	$requestData = Yii::$app->request->post();
         $page = (int) ArrayHelper::getValue($requestData, 'page', 1);
@@ -32,7 +32,7 @@ class BookController extends Controller
             $allPages = (int) ceil($query->count()/6);
 
             if($page <= $allPages){
-                $bookData = $query->orderBy(['sort' => SORT_ASC,  'created_at' => SORT_ASC])
+                $data = $query->orderBy(['sort' => SORT_ASC,  'created_at' => SORT_ASC])
                     ->offset(($page - 1) * $pageSize)
                     ->limit($pageSize)
                     ->asArray()
@@ -43,7 +43,7 @@ class BookController extends Controller
 		            'msg' => self::API_CODE_SUCCESS_MSG,
 		            'data' => [
 		                'allPages' => $allPages,
-		                'bookData' => $bookData
+		                'bookData' => $data
 		            ]
 		        ];
             }
@@ -57,7 +57,7 @@ class BookController extends Controller
      * 章节列表接口
      * @return array
      */
-    public function actionCatalogList()
+    public function actionList()
     {
         $requestData = Yii::$app->request->post();
         $page = (int) ArrayHelper::getValue($requestData, 'page', 1);
@@ -71,7 +71,7 @@ class BookController extends Controller
             $allPages = (int) ceil($query->count()/6);
 
             if($page <= $allPages){
-                $catalogData = $query->orderBy(['sort' => SORT_ASC,  'created_at' => SORT_ASC])
+                $data = $query->orderBy(['sort' => SORT_ASC,  'created_at' => SORT_ASC])
                     ->offset(($page - 1) * $pageSize)
                     ->limit($pageSize)
                     ->asArray()
@@ -82,7 +82,7 @@ class BookController extends Controller
 		            'msg' => self::API_CODE_SUCCESS_MSG,
 		            'data' => [
 		                'allPages' => $allPages,
-		                'catalogData' => $catalogData
+		                'catalogData' => $data
 		            ]
 		        ];
             }
