@@ -69,6 +69,8 @@ class ImageController extends Controller
 
         $this->data = [
             'code' => self::API_CODE_SUCCESS,
+            'msg' => self::API_CODE_SUCCESS_MSG,
+            'allPages' => 3,
             'data' => $data
         ];
         return $this->data;
