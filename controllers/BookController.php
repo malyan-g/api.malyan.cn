@@ -41,10 +41,8 @@ class BookController extends Controller
                 $this->data = [
 		            'code' => self::API_CODE_SUCCESS,
 		            'msg' => self::API_CODE_SUCCESS_MSG,
-		            'data' => [
-		                'allPages' => $allPages,
-		                'bookData' => $data
-		            ]
+                    'allPages' => $allPages,
+                    'data' => $data
 		        ];
             }
         }
@@ -80,10 +78,8 @@ class BookController extends Controller
                 $this->data = [
 		            'code' => self::API_CODE_SUCCESS,
 		            'msg' => self::API_CODE_SUCCESS_MSG,
-		            'data' => [
-		                'allPages' => $allPages,
-		                'catalogData' => $data
-		            ]
+                    'allPages' => $allPages,
+                    'data' => $data
 		        ];
             }
         }
