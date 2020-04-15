@@ -118,14 +118,14 @@ class BookController extends Controller
                     $prevData = BookCatalog::find()
                         ->select(['id'])
                         ->where(['book_id' => $catalogData['book_id'], 'show' =>BookCatalog::IS_SHOW])
-                        ->andFilterWhere([ '<=', 'id', $data['id']])
+                        ->andFilterWhere([ '<', 'id', $data['id']])
                         ->asArray()
                         ->one();
 
                     $nextData = BookCatalog::find()
                         ->select(['id'])
                         ->where(['book_id' => $catalogData['book_id'], 'show' =>BookCatalog::IS_SHOW])
-                        ->andFilterWhere(['>=', 'id', $data['id']])
+                        ->andFilterWhere(['>', 'id', $data['id']])
                         ->asArray()
                         ->one();
 
