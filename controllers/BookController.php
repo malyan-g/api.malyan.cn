@@ -104,7 +104,6 @@ class BookController extends Controller
                     ->where(['book_id' => $id, 'sort' => 1, 'show' =>BookCatalog::IS_SHOW])
                     ->asArray()
                     ->one();
-                return ['data' => $bookData];
                 if($bookData){
                     $id = $bookData['id'];
                 }
