@@ -101,8 +101,7 @@ class BookController extends Controller
             if($first == true){
                 $bookData = BookCatalog::find()
                     ->select('id')
-                    ->where(['id' => $id])
-                    ->orderBy(['sort' => SORT_ASC])
+                    ->where(['id' => $id, 'sort' => 1])
                     ->asArray()
                     ->one();
                 return $bookData;
