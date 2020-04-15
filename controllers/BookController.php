@@ -99,7 +99,13 @@ class BookController extends Controller
         $id = (int) ArrayHelper::getValue($requestData, 'id', 1);
         if($id > 0){
             if($first == true){
-                $bookData = BookCatalog::find()->select('id')->where(['id' => $id])->asArray()->one();
+                $bookData = BookCatalog::find()
+                    ->select('id')
+                    ->where(['id' => $id])
+                    ->orderBy(['sort' => SORT_ASC])
+                    ->asArray()
+                    ->one();
+                return $bookData;
                 if($bookData){
                     $id = $bookData['id'];
                 }
