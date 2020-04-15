@@ -100,7 +100,10 @@ class BookController extends Controller
         if($id > 0){
             if($first === true){
                 $id = BookCatalog::find()->select('id')->where(['id' => $id])->column();
+
+                return $id;
             }
+
             // 查询
             $data = BookDetail::find()->select(['id', 'content'])->where(['catalog_id' => $id])->asArray()->one();
             $nextData = BookCatalog::find()->select(['id'])->where(['catalog_id', '>=', $id])->asArray()->one();
