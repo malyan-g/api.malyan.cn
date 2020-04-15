@@ -99,24 +99,27 @@ class BookController extends Controller
         $id = (int) ArrayHelper::getValue($requestData, 'id', 1);
         if($id > 0){
             if($first == true){
-                $id = BookCatalog::find()->select('id')->where(['id' => $id])->column();
-
-                return $id;
+                $bookData = BookCatalog::find()->select('id')->where(['id' => $id])->asArray()->one();
+                if($bookData){
+                    $id = $bookData['id'];
+                }
             }
 
             // 查询
             $data = BookDetail::find()->select(['id', 'content'])->where(['catalog_id' => $id])->asArray()->one();
-            $nextData = BookCatalog::find()->select(['id'])->where(['catalog_id', '>=', $id])->asArray()->one();
-            $lastData = BookCatalog::find()->select(['id'])->where(['catalog_id', '<=', $id])->asArray()->one();
+            if($data){
+                $nextData = BookCatalog::find()->select(['id'])->where(['catalog_id', '>=', $id])->asArray()->one();
+                $lastData = BookCatalog::find()->select(['id'])->where(['catalog_id', '<=', $id])->asArray()->one();
 
-            $data['nextPage'] = $nextData['id'];
-            $data['lastPage'] = $lastData['id'];
+                $data['nextPage'] = $nextData ? $nextData['id'] : 0;
+                $data['lastPage'] = $lastData ? $lastData['id'] : 0;
 
-            $this->data = [
-	            'code' => self::API_CODE_SUCCESS,
-	            'msg' => self::API_CODE_SUCCESS_MSG,
-	            'data' => $data
-	        ];
+                $this->data = [
+                    'code' => self::API_CODE_SUCCESS,
+                    'msg' => self::API_CODE_SUCCESS_MSG,
+                    'data' => $data
+                ];
+            }
         }
 
         return $this->data;
