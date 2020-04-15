@@ -98,7 +98,7 @@ class BookController extends Controller
         $first = ArrayHelper::getValue($requestData, 'first', false);
         $id = (int) ArrayHelper::getValue($requestData, 'id', 1);
         if($id > 0){
-            if($first === true){
+            if($first == true){
                 $id = BookCatalog::find()->select('id')->where(['id' => $id])->column();
 
                 return $id;
