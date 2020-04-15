@@ -101,7 +101,7 @@ class BookController extends Controller
             if($first == true){
                 $bookData = BookCatalog::find()
                     ->select('id')
-                    ->where(['id' => $id, 'sort' => 1])
+                    ->where(['id' => $id, 'sort' => 1, 'show' =>BookCatalog::IS_SHOW])
                     ->asArray()
                     ->one();
                 return $bookData;
@@ -113,8 +113,18 @@ class BookController extends Controller
             // 查询
             $data = BookDetail::find()->select(['id', 'content'])->where(['catalog_id' => $id])->asArray()->one();
             if($data){
-                $nextData = BookCatalog::find()->select(['id'])->where(['catalog_id', '>=', $id])->asArray()->one();
-                $lastData = BookCatalog::find()->select(['id'])->where(['catalog_id', '<=', $id])->asArray()->one();
+                $nextData = BookCatalog::find()
+                    ->select(['id'])
+                    ->where(['show' =>BookCatalog::IS_SHOW])
+                    ->andFilterWhere(['catalog_id', '>=', $id])
+                    ->asArray()
+                    ->one();
+                $lastData = BookCatalog::find()
+                    ->select(['id'])
+                    ->where(['show' =>BookCatalog::IS_SHOW])
+                    ->andFilterWhere(['catalog_id', '<=', $id])
+                    ->asArray()
+                    ->one();
 
                 $data['nextPage'] = $nextData ? $nextData['id'] : 0;
                 $data['lastPage'] = $lastData ? $lastData['id'] : 0;
