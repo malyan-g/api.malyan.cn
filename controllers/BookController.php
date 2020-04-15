@@ -95,11 +95,11 @@ class BookController extends Controller
     public function actionDetail()
     {
         $requestData = Yii::$app->request->post();
-        $first = ArrayHelper::getValue($requestData, 'first', false);
+        $first = (int) ArrayHelper::getValue($requestData, 'first', 0);
         $id = (int) ArrayHelper::getValue($requestData, 'id', 1);
         if($id > 0){
             $queryData = $first == true ? ['book_id' => $id, 'sort' => 1] : ['id' => $id];
-            return $queryData;
+
             $catalogData = BookCatalog::find()
                 ->select(['id', 'book_id', 'title'])
                 ->where($queryData)
