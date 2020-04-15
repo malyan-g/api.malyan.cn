@@ -98,41 +98,49 @@ class BookController extends Controller
         $first = ArrayHelper::getValue($requestData, 'first', false);
         $id = (int) ArrayHelper::getValue($requestData, 'id', 1);
         if($id > 0){
-            if($first == true){
-                $bookData = BookCatalog::find()
-                    ->select('id')
-                    ->where(['book_id' => $id, 'sort' => 1, 'show' =>BookCatalog::IS_SHOW])
+            $queryData = $first == true ? ['book_id' => $id, 'sort' => 1] : ['id' => $id];
+            $catalogData = BookCatalog::find()
+                ->select(['id', 'title'])
+                ->where($queryData)
+                ->andWhere(['show' => BookCatalog::IS_SHOW])
+                ->asArray()
+                ->one();
+
+            if($catalogData){
+                // 查询
+                $data = BookDetail::find()
+                    ->select(['id', 'content'])
+                    ->where(['catalog_id' => $catalogData['id']])
                     ->asArray()
                     ->one();
-                $id = $bookData ? $bookData['id'] : 0;
+
+                if($data){
+                    $prevData = BookCatalog::find()
+                        ->select(['id'])
+                        ->where(['show' =>BookCatalog::IS_SHOW])
+                        ->andFilterWhere([ '>=', 'book_id', $catalogData['id']])
+                        ->asArray()
+                        ->one();
+
+                    $nextData = BookCatalog::find()
+                        ->select(['id'])
+                        ->where(['show' =>BookCatalog::IS_SHOW])
+                        ->andFilterWhere(['<=', 'book_id', $catalogData['id']])
+                        ->asArray()
+                        ->one();
+
+                    $data['prevPage'] = $prevData ? $prevData['id'] : null;
+                    $data['nextPage'] = $nextData ? $nextData['id'] : null;
+                    $data['title'] = $catalogData['title'];
+
+                    $this->data = [
+                        'code' => self::API_CODE_SUCCESS,
+                        'msg' => self::API_CODE_SUCCESS_MSG,
+                        'data' => $data
+                    ];
+                }
             }
 
-            // 查询
-            $data = BookDetail::find()->select(['id', 'content'])->where(['catalog_id' => $id])->asArray()->one();
-
-            if($data){
-                $prevData = BookCatalog::find()
-                    ->select(['id'])
-                    ->where(['show' =>BookCatalog::IS_SHOW])
-                    ->andFilterWhere([ '>=', 'book_id', $id])
-                    ->asArray()
-                    ->one();
-                $nextData = BookCatalog::find()
-                    ->select(['id'])
-                    ->where(['show' =>BookCatalog::IS_SHOW])
-                    ->andFilterWhere(['<=', 'book_id', $id])
-                    ->asArray()
-                    ->one();
-
-                $data['prevPage'] = $prevData ? $prevData['id'] : null;
-                $data['nextPage'] = $nextData ? $nextData['id'] : null;
-
-                $this->data = [
-                    'code' => self::API_CODE_SUCCESS,
-                    'msg' => self::API_CODE_SUCCESS_MSG,
-                    'data' => $data
-                ];
-            }
         }
 
         return $this->data;
