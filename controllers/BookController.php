@@ -123,15 +123,17 @@ class BookController extends Controller
                 if($data){
                     $prevData = BookCatalog::find()
                         ->select(['id'])
-                        ->where(['book_id' => $catalogData['book_id'], 'sort' => SORT_DESC, 'show' =>BookCatalog::IS_SHOW])
+                        ->where(['book_id' => $catalogData['book_id'], 'show' =>BookCatalog::IS_SHOW])
                         ->andFilterWhere([ '<', 'id', $data['id']])
+                        ->orderBy(['sort' => SORT_DESC])
                         ->asArray()
                         ->one();
 
                     $nextData = BookCatalog::find()
                         ->select(['id'])
-                        ->where(['book_id' => $catalogData['book_id'], 'sort' => SORT_ASC, 'show' =>BookCatalog::IS_SHOW])
+                        ->where(['book_id' => $catalogData['book_id'], 'show' =>BookCatalog::IS_SHOW])
                         ->andFilterWhere(['>', 'id', $data['id']])
+                        ->orderBy(['sort' => SORT_ASC])
                         ->asArray()
                         ->one();
 
