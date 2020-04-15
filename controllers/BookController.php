@@ -95,10 +95,19 @@ class BookController extends Controller
     public function actionDetail()
     {
         $requestData = Yii::$app->request->post();
+        $first = ArrayHelper::getValue($requestData, 'first', false);
         $id = (int) ArrayHelper::getValue($requestData, 'id', 1);
         if($id > 0){
-        	// 查询
+            if($first === true){
+                $id = BookCatalog::find()->select('id')->where(['id' => $id])->column();
+            }
+            // 查询
             $data = BookDetail::find()->select(['id', 'content'])->where(['catalog_id' => $id])->asArray()->one();
+            $nextData = BookCatalog::find()->select(['id'])->where(['catalog_id', '>=', $id])->asArray()->one();
+            $lastData = BookCatalog::find()->select(['id'])->where(['catalog_id', '<=', $id])->asArray()->one();
+
+            $data['nextPage'] = $nextData['id'];
+            $data['lastPage'] = $lastData['id'];
 
             $this->data = [
 	            'code' => self::API_CODE_SUCCESS,
