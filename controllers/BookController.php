@@ -125,8 +125,8 @@ class BookController extends Controller
                     ->asArray()
                     ->one();
 
-                $data['nextPage'] = $nextData ? $nextData['id'] : 0;
-                $data['lastPage'] = $lastData ? $lastData['id'] : 0;
+                $data['nextPage'] = $nextData ? $nextData['id'] : null;
+                $data['lastPage'] = $lastData ? $lastData['id'] : null;
 
                 $this->data = [
                     'code' => self::API_CODE_SUCCESS,
