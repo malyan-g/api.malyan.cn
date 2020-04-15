@@ -104,9 +104,7 @@ class BookController extends Controller
                     ->where(['book_id' => $id, 'sort' => 1, 'show' =>BookCatalog::IS_SHOW])
                     ->asArray()
                     ->one();
-                if($bookData){
-                    $id = $bookData['id'];
-                }
+                $id = $bookData ? $bookData['id'] : 0;
             }
 
             // 查询
@@ -116,16 +114,15 @@ class BookController extends Controller
                 $prevData = BookCatalog::find()
                     ->select(['id'])
                     ->where(['show' =>BookCatalog::IS_SHOW])
-                    ->andFilterWhere(['book_id', '>=', $id])
+                    ->andFilterWhere([ '>=', 'book_id', $id])
                     ->asArray()
                     ->one();
                 $nextData = BookCatalog::find()
                     ->select(['id'])
                     ->where(['show' =>BookCatalog::IS_SHOW])
-                    ->andFilterWhere(['book_id', '<=', $id])
+                    ->andFilterWhere(['<=', 'book_id', $id])
                     ->asArray()
                     ->one();
-
 
                 $data['prevPage'] = $prevData ? $prevData['id'] : null;
                 $data['nextPage'] = $nextData ? $nextData['id'] : null;
