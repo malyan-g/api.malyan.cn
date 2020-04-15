@@ -111,6 +111,7 @@ class BookController extends Controller
 
             // 查询
             $data = BookDetail::find()->select(['id', 'content'])->where(['catalog_id' => $id])->asArray()->one();
+            return $data;
             if($data){
                 $nextData = BookCatalog::find()
                     ->select(['id'])
