@@ -100,7 +100,7 @@ class BookController extends Controller
         if($id > 0){
             $queryData = $first == true ? ['book_id' => $id, 'sort' => 1] : ['id' => $id];
             $catalogData = BookCatalog::find()
-                ->select(['id', 'title'])
+                ->select(['id', 'book_id', 'title'])
                 ->where($queryData)
                 ->andWhere(['show' => BookCatalog::IS_SHOW])
                 ->asArray()
@@ -117,14 +117,14 @@ class BookController extends Controller
                 if($data){
                     $prevData = BookCatalog::find()
                         ->select(['id'])
-                        ->where(['show' =>BookCatalog::IS_SHOW])
+                        ->where(['book_id' => $catalogData['book_id'], 'show' =>BookCatalog::IS_SHOW])
                         ->andFilterWhere([ '<=', 'id', $data['id']])
                         ->asArray()
                         ->one();
 
                     $nextData = BookCatalog::find()
                         ->select(['id'])
-                        ->where(['show' =>BookCatalog::IS_SHOW])
+                        ->where(['book_id' => $catalogData['book_id'], 'show' =>BookCatalog::IS_SHOW])
                         ->andFilterWhere(['>=', 'id', $data['id']])
                         ->asArray()
                         ->one();
