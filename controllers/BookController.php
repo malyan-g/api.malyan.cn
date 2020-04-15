@@ -113,21 +113,22 @@ class BookController extends Controller
             $data = BookDetail::find()->select(['id', 'content'])->where(['catalog_id' => $id])->asArray()->one();
 
             if($data){
-                $nextData = BookCatalog::find()
+                $prevData = BookCatalog::find()
                     ->select(['id'])
                     ->where(['show' =>BookCatalog::IS_SHOW])
                     ->andFilterWhere(['book_id', '>=', $id])
                     ->asArray()
                     ->one();
-                $lastData = BookCatalog::find()
+                $nextData = BookCatalog::find()
                     ->select(['id'])
                     ->where(['show' =>BookCatalog::IS_SHOW])
                     ->andFilterWhere(['book_id', '<=', $id])
                     ->asArray()
                     ->one();
 
+
+                $data['prevPage'] = $prevData ? $prevData['id'] : null;
                 $data['nextPage'] = $nextData ? $nextData['id'] : null;
-                $data['lastPage'] = $lastData ? $lastData['id'] : null;
 
                 $this->data = [
                     'code' => self::API_CODE_SUCCESS,
