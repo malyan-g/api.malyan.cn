@@ -29,7 +29,7 @@ class BookController extends Controller
 
             // 查询总页数
             $pageSize = 6;
-            $allPages = (int) ceil($query->count()/6);
+            $allPages = (int) ceil($query->count()/$pageSize);
 
             if($page <= $allPages){
                 $data = $query->orderBy(['sort' => SORT_ASC,  'created_at' => SORT_ASC])
@@ -60,16 +60,22 @@ class BookController extends Controller
         $requestData = Yii::$app->request->post();
         $page = (int) ArrayHelper::getValue($requestData, 'page', 1);
         $id = (int) ArrayHelper::getValue($requestData, 'id', 1);
-        if($page > 0 && $id > 0){
+        $catalogId = (int) ArrayHelper::getValue($requestData, 'catalogId', 1);
+        $sort = (int) ArrayHelper::getValue($requestData, 'sort', 0);
+
+        if($page > 0 && $id > 0 && $catalogId > 0){
         	// 查询
-            $query = BookCatalog::find()->select(['id', 'title'])->where(['show' => BookCatalog::IS_SHOW, 'book_id' => $id]);
+            $query = BookCatalog::find()
+                ->select(['id', 'title'])
+                ->where(['show' => BookCatalog::IS_SHOW, 'book_id' => $id])
+                ->andFilterWhere([$sort ? '>=' : '<', 'id', $catalogId]);
 
             // 查询总页数
             $pageSize = 20;
-            $allPages = (int) ceil($query->count()/6);
+            $allPages = (int) ceil($query->count()/$pageSize);
 
             if($page <= $allPages){
-                $data = $query->orderBy(['sort' => SORT_ASC,  'created_at' => SORT_ASC])
+                $data = $query->orderBy(['sort' => $sort ? SORT_ASC : SORT_DESC])
                     ->offset(($page - 1) * $pageSize)
                     ->limit($pageSize)
                     ->asArray()
@@ -79,7 +85,7 @@ class BookController extends Controller
 		            'code' => self::API_CODE_SUCCESS,
 		            'msg' => self::API_CODE_SUCCESS_MSG,
                     'allPages' => $allPages,
-                    'data' => $data
+                    'data' => $sort ? $data : array_reverse($data)
 		        ];
             }
         }
