@@ -27,7 +27,7 @@ class BookController extends Controller
         	// 查询
             $query = Book::find()
                 ->joinWith(['catalog'])
-                ->select([Book::tableName() .'.id', 'name', 'author', 'image', 'title'])
+               // ->select([Book::tableName() .'.id', 'name', 'author', 'image', 'title'])
                 ->where([Book::tableName() .'.show' => Book::IS_SHOW]);
 
             // 查询总页数
