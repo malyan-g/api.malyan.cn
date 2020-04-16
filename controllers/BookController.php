@@ -26,7 +26,7 @@ class BookController extends Controller
         if($page > 0){
         	// 查询
             $query = Book::find()
-                ->select(['id', 'name', 'author', 'image'])
+                ->select(['id', 'name', 'author', 'image', 'title'])
                 ->where(['show' => Book::IS_SHOW]);
 
             // 查询总页数
