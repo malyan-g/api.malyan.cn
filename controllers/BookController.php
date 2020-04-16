@@ -59,6 +59,8 @@ class BookController extends Controller
                     $data[] = $bookData[$key];
                 }
 
+                return $data;
+
                 $this->data = [
 		            'code' => self::API_CODE_SUCCESS,
 		            'msg' => self::API_CODE_SUCCESS_MSG,
