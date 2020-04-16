@@ -23,6 +23,12 @@ class IndexController extends Controller
      */
     public function actionIndex()
     {
+        $data = [];
+        $time = time();
+        for($i = 0; $i < 12;$i++){
+            $data[] = md5($time + $i);
+        }
+        return $data;
         $model = BaseConfig::findOne(1);
         $this->data = [
             'code' => self::API_CODE_SUCCESS,
