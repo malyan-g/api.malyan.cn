@@ -58,13 +58,44 @@ class BookController extends Controller
     public function actionList()
     {
         $requestData = Yii::$app->request->post();
+        $id = (int) ArrayHelper::getValue($requestData, 'id', 1);
+
+        if($id > 0){
+        	// 查询
+            $data = BookCatalog::find()
+                ->select(['id', 'title'])
+                ->where(['show' => BookCatalog::IS_SHOW, 'book_id' => $id])
+                ->orderBy(['sort' => SORT_ASC])
+                ->indexBy('id')
+                ->asArray()
+                ->all();
+
+                $this->data = [
+		            'code' => self::API_CODE_SUCCESS,
+		            'msg' => self::API_CODE_SUCCESS_MSG,
+                    'allPages' => 1,
+                    'data' => $data
+		        ];
+            }
+        }
+
+        return $this->data;
+    }
+
+    /**
+     * 章节列表接口
+     * @return array
+     */
+    public function actionListBak()
+    {
+        $requestData = Yii::$app->request->post();
         $page = (int) ArrayHelper::getValue($requestData, 'page', 1);
         $id = (int) ArrayHelper::getValue($requestData, 'id', 1);
         $catalogId = (int) ArrayHelper::getValue($requestData, 'catalogId', 1);
         $sort = (int) ArrayHelper::getValue($requestData, 'sort', 0);
 
         if($page > 0 && $id > 0 && $catalogId > 0){
-        	// 查询
+            // 查询
             $query = BookCatalog::find()
                 ->select(['id', 'title'])
                 ->where(['show' => BookCatalog::IS_SHOW, 'book_id' => $id])
@@ -82,11 +113,11 @@ class BookController extends Controller
                     ->all();
 
                 $this->data = [
-		            'code' => self::API_CODE_SUCCESS,
-		            'msg' => self::API_CODE_SUCCESS_MSG,
+                    'code' => self::API_CODE_SUCCESS,
+                    'msg' => self::API_CODE_SUCCESS_MSG,
                     'allPages' => $allPages,
                     'data' => $sort ? $data : array_reverse($data)
-		        ];
+                ];
             }
         }
 
