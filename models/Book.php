@@ -72,7 +72,7 @@ class Book extends \yii\db\ActiveRecord
     {
         return $this
             ->hasOne(BookCatalog::className(), ['book_id' => 'id'])
-            ->select(['id', 'book_id', 'title'])
+            ->select([BookCatalog::className().'.id', 'book_id', 'title'])
             ->orderBy(['sort' => SORT_ASC])
             ->offset(0)
             ->limit(1);
