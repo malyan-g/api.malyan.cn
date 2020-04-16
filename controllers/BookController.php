@@ -56,10 +56,10 @@ class BookController extends Controller
                 $data = [];
                 foreach ($bookData as $key => $val){
                     $bookData[$key]['content'] = mb_substr($detailData[$val], 0, 40);
-                    $data[] = $bookData[$key];
+                    //$data[] = $bookData[$key];
                 }
 
-                return $data;
+                return $bookData;
 
                 $this->data = [
 		            'code' => self::API_CODE_SUCCESS,
