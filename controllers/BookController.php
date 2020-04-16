@@ -26,6 +26,7 @@ class BookController extends Controller
         if($page > 0){
         	// 查询
             $query = Book::find()
+                ->with('catalog')
                 ->select(['id', 'name', 'author', 'image'])
                 ->where(['show' => Book::IS_SHOW]);
 
