@@ -37,7 +37,7 @@ class BookController extends Controller
                 $data = $query->orderBy(['sort' => SORT_ASC,  'created_at' => SORT_ASC])
                     ->offset(($page - 1) * $pageSize)
                     ->limit($pageSize)
-                    ->asArray()
+                    //->asArray()
                     ->all();
 
                 return $data;
