@@ -27,15 +27,15 @@ class BookController extends Controller
         	// 查询
             $query = Book::find()
                 ->joinWith(['catalog'])
-                ->select(['id', 'name', 'author', 'image'])
-                ->where(['show' => Book::IS_SHOW]);
+                ->select([Book::tableName() .'.id', 'name', 'author', 'image', 'title'])
+                ->where([Book::tableName() .'.show' => Book::IS_SHOW]);
 
             // 查询总页数
             $pageSize = 6;
             $allPages = (int) ceil($query->count()/$pageSize);
 
             if($page <= $allPages){
-                $data = $query->orderBy(['sort' => SORT_ASC,  'created_at' => SORT_ASC])
+                $data = $query->orderBy([Book::tableName() .'.sort' => SORT_ASC])
                     ->offset(($page - 1) * $pageSize)
                     ->limit($pageSize)
                     //->asArray()
