@@ -57,8 +57,6 @@ class BookController extends Controller
                     $data[] = array_merge($bookData[$key], ['content' => mb_substr($detailData[$val], 0, 40)]);
                 }
 
-                return $bookData;
-
                 $this->data = [
 		            'code' => self::API_CODE_SUCCESS,
 		            'msg' => self::API_CODE_SUCCESS_MSG,
