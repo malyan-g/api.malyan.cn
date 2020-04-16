@@ -53,6 +53,7 @@ class BookController extends Controller
                     ->indexBy('catalog_id')
                     ->column();
 
+                $data = [];
                 foreach ($bookData as $key => $val){
                     $bookData[$key]['content'] = mb_substr($detailData[$val], 0, 40);
                     $data[] = $bookData[$key];
