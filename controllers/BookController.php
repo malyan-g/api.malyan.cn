@@ -44,7 +44,7 @@ class BookController extends Controller
                 $bookData = BookCatalog::find()
                     ->select('id')
                     ->where(['book_id' => array_keys($data), 'show' => BookCatalog::IS_SHOW, 'sort' => 1])
-                    ->indexBy('bookId')
+                    ->indexBy('book_id')
                     ->column();
 
                 return $bookData;
