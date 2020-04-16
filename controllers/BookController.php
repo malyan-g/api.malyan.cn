@@ -41,7 +41,13 @@ class BookController extends Controller
                     ->asArray()
                     ->all();
 
-                return $data;
+                $bookData = BookCatalog::find()
+                    ->select('id')
+                    ->where(['bookId' => array_keys($data)])
+                    ->indexBy('bookId')
+                    ->column();
+
+                return $bookData;
 
                 $this->data = [
 		            'code' => self::API_CODE_SUCCESS,
