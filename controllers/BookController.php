@@ -66,7 +66,7 @@ class BookController extends Controller
             $count = BookCatalog::find()
                 ->select(['id', 'title'])
                 ->where(['show' => BookCatalog::IS_SHOW, 'book_id' => $bookId])
-                ->andFilterWhere(['<', 'id' , $id])
+                ->andFilterWhere(['<=', 'id' , $id])
                 ->count();
 
             if($count) {
@@ -79,7 +79,7 @@ class BookController extends Controller
                 $this->data = [
                     'code' => self::API_CODE_SUCCESS,
                     'msg' => self::API_CODE_SUCCESS_MSG,
-                    'number' => $count,
+                    'number' => $count - 1,
                     'data' => $data
                 ];
             }
