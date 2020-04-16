@@ -54,7 +54,7 @@ class BookController extends Controller
                     ->column();
 
                 foreach ($bookData as $key => $val){
-                    $data[$key]['content'] = $detailData[$val];
+                    $data[$key]['content'] = substr($detailData[$val],100);
 
                 }
 
