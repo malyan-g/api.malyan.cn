@@ -43,7 +43,7 @@ class BookController extends Controller
 
                 $bookData = BookCatalog::find()
                     ->select('id')
-                    ->where(['bookId' => array_keys($data)])
+                    ->where(['book_id' => array_keys($data)])
                     ->indexBy('bookId')
                     ->column();
 
