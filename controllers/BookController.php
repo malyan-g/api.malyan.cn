@@ -25,7 +25,9 @@ class BookController extends Controller
         $page = (int) ArrayHelper::getValue($requestData, 'page', 1);
         if($page > 0){
         	// 查询
-            $query = Book::find()->select(['id', 'name'])->where(['show' => Book::IS_SHOW]);
+            $query = Book::find()
+                ->select(['id', 'name', 'author', 'image'])
+                ->where(['show' => Book::IS_SHOW]);
 
             // 查询总页数
             $pageSize = 6;

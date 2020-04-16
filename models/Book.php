@@ -9,6 +9,8 @@ use Yii;
  *
  * @property integer $id
  * @property string $name
+ * @property string $author
+ * @property string $image
  * @property integer $show
  * @property integer $sort
  * @property integer $created_at
@@ -41,7 +43,8 @@ class Book extends \yii\db\ActiveRecord
         return [
             [['show', 'sort', 'created_at'], 'integer'],
             [['sort', 'created_at'], 'required'],
-            [['name'], 'string', 'max' => 64],
+            [['name', 'image'], 'string', 'max' => 64],
+            [[ 'author'], 'string', 'max' => 20],
         ];
     }
 
@@ -53,9 +56,23 @@ class Book extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'name' => '书籍名称',
+            'author' => '作者',
+            'image' => '图片',
             'show' => '是否显示',
             'sort' => '排序',
             'created_at' => '创建时间',
         ];
+    }
+
+    /**
+     * 书籍和章节的关联
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCatalog()
+    {
+        return $this
+            ->hasOne(BookCatalog::className(), ['book_id' => 'id'])
+            ->select(['content'])
+            ->orderBy(['sort' => SORT_ASC]);
     }
 }
