@@ -71,7 +71,8 @@ class Book extends \yii\db\ActiveRecord
     public function getCatalog()
     {
         return $this
-            ->hasOne(BookCatalog::className(), ['book_id' => 'id', 'sort' => 1])
-            ->select([BookCatalog::tableName() . '.id', 'book_id', 'title']);
+            ->hasOne(BookCatalog::className(), ['book_id' => 'id'])
+            ->select([BookCatalog::tableName() . '.id', 'book_id', 'title'])
+            ->where(['sort' => 1]);
     }
 }
