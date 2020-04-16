@@ -40,6 +40,8 @@ class BookController extends Controller
                     ->asArray()
                     ->all();
 
+                return $data;
+
                 $this->data = [
 		            'code' => self::API_CODE_SUCCESS,
 		            'msg' => self::API_CODE_SUCCESS_MSG,
