@@ -54,7 +54,7 @@ class BookController extends Controller
                     ->column();
 
                 foreach ($bookData as $key => $val){
-                    $data[$key]['content'] = mb_substr($detailData[$val], 0, 60);
+                    $data[$key]['content'] = mb_substr($detailData[$val], 0, 40);
                 }
 
                 $this->data = [
