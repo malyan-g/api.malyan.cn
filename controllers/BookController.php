@@ -66,9 +66,8 @@ class BookController extends Controller
             $count = BookCatalog::find()
                 ->select(['id', 'title'])
                 ->where(['show' => BookCatalog::IS_SHOW, 'book_id' => $bookId])
-                ->andFilterWhere(['<=', 'id' , $id])
+                ->andFilterWhere(['<', 'id' , $id])
                 ->count();
-
 
             if($count) {
                 $data = BookCatalog::find()
