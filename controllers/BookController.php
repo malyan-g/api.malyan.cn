@@ -63,17 +63,17 @@ class BookController extends Controller
 
         if($id > 0 && $bookId > 0){
         	// 查询
-            $query = BookCatalog::find()
+            $count = BookCatalog::find()
                 ->select(['id', 'title'])
-                ->where(['show' => BookCatalog::IS_SHOW, 'book_id' => $bookId]);
-
-
-            $count = $query
+                ->where(['show' => BookCatalog::IS_SHOW, 'book_id' => $bookId])
                 ->andFilterWhere(['<=', 'id' , $id])
                 ->count();
 
+
             if($count) {
-                $data = $query
+                $data = BookCatalog::find()
+                    ->select(['id', 'title'])
+                    ->where(['show' => BookCatalog::IS_SHOW, 'book_id' => $bookId])
                     ->orderBy(['sort' => SORT_ASC])
                     ->asArray()
                     ->all();
