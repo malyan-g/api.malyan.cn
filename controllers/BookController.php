@@ -47,7 +47,13 @@ class BookController extends Controller
                     ->indexBy('book_id')
                     ->column();
 
-                return $bookData;
+                $detailData = BookDetail::find()
+                    ->select('content')
+                    ->where(['catalog_id' => array_values($bookData)])
+                    ->indexBy('catalog_id')
+                    ->column();
+
+                return $detailData;
 
                 $this->data = [
 		            'code' => self::API_CODE_SUCCESS,
