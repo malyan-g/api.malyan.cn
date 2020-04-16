@@ -53,7 +53,10 @@ class BookController extends Controller
                     ->indexBy('catalog_id')
                     ->column();
 
-                return $detailData;
+                foreach ($bookData as $key => $val){
+                    $data[$key]['content'] = $detailData[$val];
+
+                }
 
                 $this->data = [
 		            'code' => self::API_CODE_SUCCESS,
