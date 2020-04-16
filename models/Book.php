@@ -63,16 +63,4 @@ class Book extends \yii\db\ActiveRecord
             'created_at' => '创建时间',
         ];
     }
-
-    /**
-     * 书籍和章节的关联
-     * @return \yii\db\ActiveQuery
-     */
-    public function getCatalog()
-    {
-        return $this
-            ->hasOne(BookCatalog::className(), ['book_id' => 'id'])
-            ->select([BookCatalog::tableName() . '.id', 'book_id', 'title'])
-            ->where([BookCatalog::tableName() .'.sort' => 1]);
-    }
 }
