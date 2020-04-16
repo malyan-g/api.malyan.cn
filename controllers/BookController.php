@@ -59,23 +59,30 @@ class BookController extends Controller
     {
         $requestData = Yii::$app->request->post();
         $id = (int) ArrayHelper::getValue($requestData, 'id', 1);
+        $bookId = (int) ArrayHelper::getValue($requestData, 'bookId', 1);
 
-        if($id > 0){
+        if($id > 0 && $bookId > 0){
         	// 查询
-            $data = BookCatalog::find()
+            $query = BookCatalog::find()
                 ->select(['id', 'title'])
-                ->where(['show' => BookCatalog::IS_SHOW, 'book_id' => $id])
-                ->orderBy(['sort' => SORT_ASC])
-                ->indexBy('id')
-                ->asArray()
-                ->all();
+                ->where(['show' => BookCatalog::IS_SHOW, 'book_id' => $bookId]);
 
+
+            $count = $query
+                ->andFilterWhere(['<=', 'id' , $id])
+                ->count();
+
+            if($count) {
+                $data = $query
+                    ->orderBy(['sort' => SORT_ASC])
+                    ->asArray()
+                    ->all();
                 $this->data = [
-		            'code' => self::API_CODE_SUCCESS,
-		            'msg' => self::API_CODE_SUCCESS_MSG,
-                    'allPages' => 1,
+                    'code' => self::API_CODE_SUCCESS,
+                    'msg' => self::API_CODE_SUCCESS_MSG,
+                    'number' => $count,
                     'data' => $data
-		        ];
+                ];
             }
         }
 
