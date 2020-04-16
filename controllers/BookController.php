@@ -34,27 +34,27 @@ class BookController extends Controller
             $allPages = (int) ceil($query->count()/$pageSize);
 
             if($page <= $allPages){
-                $data = $query->orderBy(['sort' => SORT_ASC])
+                $bookData = $query->orderBy(['sort' => SORT_ASC])
                     ->offset(($page - 1) * $pageSize)
                     ->limit($pageSize)
                     ->indexBy('id')
                     ->asArray()
                     ->all();
 
-                $bookData = BookCatalog::find()
+                $catalogData = BookCatalog::find()
                     ->select('id')
-                    ->where(['book_id' => array_keys($data), 'show' => BookCatalog::IS_SHOW, 'sort' => 1])
+                    ->where(['book_id' => array_keys($bookData), 'show' => BookCatalog::IS_SHOW, 'sort' => 1])
                     ->indexBy('book_id')
                     ->column();
 
                 $detailData = BookDetail::find()
                     ->select('content')
-                    ->where(['catalog_id' => array_values($bookData)])
+                    ->where(['catalog_id' => array_values($catalogData)])
                     ->indexBy('catalog_id')
                     ->column();
 
                 foreach ($bookData as $key => $val){
-                    $data[$key]['content'] = mb_substr($detailData[$val], 0, 40);
+                    $data[] = array_merge($bookData[$key], ['content' => mb_substr($detailData[$val], 0, 40)]);
                 }
 
                 $this->data = [
